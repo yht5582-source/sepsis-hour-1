@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sepsis Hour-1 導航</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --surface-2:#F5F8F7; --ink:#14212A; --muted:#55666D; --line:#D2DBDA;
+  --accent:#0B6E69; --accent-ink:#FFFFFF; --accent-soft:#DCEEEC;
+  --ok:#2A7549; --ok-soft:#E0F0E6; --warn:#9A5700; --warn-soft:#FAEBD3; --crit:#B42318; --crit-soft:#FBE2DE;
+  --strip:#12202A; --strip-ink:#E6EEF0; --strip-muted:#93A7AF; --strip-line:#2B3D47; --strip-accent:#43C4B8;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-label:"IBM Plex Sans Condensed","Noto Sans TC","Arial Narrow",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0B1114; --surface:#131C20; --surface-2:#182328; --ink:#E2EAEC; --muted:#93A4AA; --line:#26353B;
+    --accent:#3CBDB2; --accent-ink:#06201E; --accent-soft:#12332F;
+    --ok:#5CC48E; --ok-soft:#12301F; --warn:#F0AA45; --warn-soft:#352409; --crit:#F2685F; --crit-soft:#3A1512;
+    --strip:#070D10; --strip-ink:#E2EAEC; --strip-muted:#8397A0; --strip-line:#223139; --strip-accent:#43C4B8;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0B1114; --surface:#131C20; --surface-2:#182328; --ink:#E2EAEC; --muted:#93A4AA; --line:#26353B;
+  --accent:#3CBDB2; --accent-ink:#06201E; --accent-soft:#12332F;
+  --ok:#5CC48E; --ok-soft:#12301F; --warn:#F0AA45; --warn-soft:#352409; --crit:#F2685F; --crit-soft:#3A1512;
+  --strip:#070D10; --strip-ink:#E2EAEC; --strip-muted:#8397A0; --strip-line:#223139; --strip-accent:#43C4B8;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.label{font-family:var(--f-label);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* monitor strip */
+.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--strip);color:var(--strip-ink);border-bottom:1px solid var(--strip-line)}
+.strip .wrap{display:grid;grid-template-columns:auto 1fr auto;gap:12px 28px;align-items:center;padding-block:12px}
+.brand h1{font-family:var(--f-label);font-size:20px;font-weight:700;letter-spacing:.01em}
+.brand p{font-size:12px;color:var(--strip-muted)}
+.strip .label{color:var(--strip-muted)}
+.clock{display:grid;gap:6px;min-width:0}
+.clock-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.elapsed{font-family:var(--f-num);font-size:clamp(28px,5vw,40px);font-weight:700;line-height:1;letter-spacing:-.01em}
+.elapsed.warn{color:#F0AA45}.elapsed.crit{color:#F2685F}
+.t0txt{font-size:13px;color:var(--strip-muted)}
+.bar{position:relative;height:8px;border-radius:4px;background:var(--strip-line);overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--strip-accent);transition:width .6s linear}
+.bar.warn i{background:#F0AA45}.bar.crit i{background:#F2685F}
+.bar-ticks{display:flex;justify-content:space-between;font-family:var(--f-num);font-size:10px;color:var(--strip-muted)}
+.t0ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.t0ctl input{background:transparent;border:1px solid var(--strip-line);border-radius:6px;padding:6px 8px;color:var(--strip-ink);font-family:var(--f-num);font-size:13px;color-scheme:dark}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.strip .btn.primary{background:var(--strip-accent);border-color:var(--strip-accent);color:#06201E}
+.btn.small{padding:4px 10px;font-size:13px}
+.chips{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--strip-line);border-radius:999px;padding:3px 10px;font-size:13px}
+.chip b{font-family:var(--f-num);font-weight:700}
+.chip.crit{border-color:#F2685F;color:#FFB4AE}.chip.warn{border-color:#F0AA45;color:#FFD9A0}.chip.ok{border-color:#5CC48E;color:#B6EBCD}
+
+/* layout */
+main{display:grid;gap:28px;padding-block:24px 48px}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.sec-head h2{font-size:19px;font-weight:700}
+.sec-head .src{font-size:12px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;color:var(--muted)}
+.field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:15px}
+.field select{font-family:var(--f-body)}
+.unit{font-size:11px;color:var(--muted);font-family:var(--f-num)}
+.derived{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:14px}
+.derived b{font-family:var(--f-num)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:3px 10px;font-size:13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.strip .wrap{grid-template-columns:1fr auto}.clock{grid-column:1/-1;grid-row:2}}
+@media (max-width:520px){.strip .wrap{grid-template-columns:1fr}.t0ctl{justify-content:flex-start}}
+
+/* bundle steps */
+.steps{display:grid;gap:12px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.step.is-ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.step.is-crit{border-color:var(--crit)}
+.step-no{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;background:var(--surface-2);border:1px solid var(--line);font-size:14px}
+.step.is-ok .step-no{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.step-body{display:grid;gap:8px;min-width:0}
+.step-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.step-head h3{font-size:16.5px;font-weight:700}
+.step p{color:var(--muted);font-size:14px}
+.pill{font-size:12.5px;border-radius:999px;padding:2px 10px;white-space:nowrap;background:var(--surface-2);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.pill.ok{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.pill.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.pill.crit{background:var(--crit-soft);border-color:transparent;color:var(--crit);font-weight:700}
+.pill.na{color:var(--muted)}
+.note{font-size:13.5px;border-radius:8px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--line)}
+.note.warn{background:var(--warn-soft);border-color:transparent}
+.note.crit{background:var(--crit-soft);border-color:transparent}
+.note.ok{background:var(--ok-soft);border-color:transparent}
+.tag{display:inline-block;font-family:var(--f-label);font-size:11px;font-weight:600;letter-spacing:.04em;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:4px;color:var(--muted);vertical-align:1px}
+.tag.new{border-color:var(--accent);color:var(--accent)}
+.check{justify-self:start;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:500}
+.check .box{width:16px;height:16px;border-radius:4px;border:2px solid var(--muted);display:grid;place-items:center}
+.check[aria-pressed="true"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.check[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok)}
+.check[aria-pressed="true"] .box::after{content:"";width:5px;height:9px;border:solid var(--surface);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.radios{display:flex;flex-direction:column;gap:6px}
+.radios label{display:flex;gap:8px;align-items:flex-start;font-size:14px;cursor:pointer}
+.radios input{margin-top:5px;accent-color:var(--accent)}
+.radios small{color:var(--muted)}
+.fluid{display:grid;gap:8px}
+.fluid-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fluid-row input{width:96px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:5px 8px;font-family:var(--f-num)}
+.meter{height:10px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.meter.full i{background:var(--ok)}
+
+/* ladder */
+.next{background:var(--accent-soft);border-radius:12px;padding:14px 16px;display:grid;gap:4px;margin-bottom:12px}
+.next .label{color:var(--accent)}
+.next p{font-size:15.5px;font-weight:500}
+.ladder{display:grid;gap:0;position:relative}
+.rung{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;position:relative}
+.rung+.rung{border-top:1px solid var(--line)}
+.rung .dot{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:13px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted)}
+.rung[data-state="current"] .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.rung[data-state="done"] .dot{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.rung h3{font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rung .when{font-size:13.5px;color:var(--muted)}
+.rung-body{display:grid;gap:8px;min-width:0}
+.rung[data-state="current"] h3::after{content:"現在";font-family:var(--f-label);font-size:11px;letter-spacing:.06em;background:var(--accent);color:var(--accent-ink);border-radius:4px;padding:1px 6px}
+.inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.inline input[type="number"]{width:92px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:5px 8px;font-family:var(--f-num)}
+.inline input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
+.inline select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:5px 8px}
+.rate{font-family:var(--f-num);font-size:13px;color:var(--muted)}
+.side{margin-top:14px;border-top:2px solid var(--line);padding-top:12px;display:grid;gap:8px}
+
+.steroid{display:grid;gap:10px}
+.crit-list{display:grid;gap:4px;font-size:14px}
+.crit-list div{display:flex;gap:8px;align-items:baseline}
+.mark{font-family:var(--f-num);font-weight:700;width:18px;flex:none}
+.mark.y{color:var(--ok)}.mark.n{color:var(--muted)}
+.regimen{display:grid;gap:4px;font-size:14px}
+.regimen b{font-family:var(--f-num)}
+
+/* tools */
+.tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;align-items:start}
+@media (max-width:900px){.tools{grid-template-columns:1fr}}
+.calc{display:grid;gap:12px}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.calc-out{font-size:14px;color:var(--muted)}
+.calc-out b{color:var(--ink);font-family:var(--f-num)}
+.log{list-style:none;margin:0;padding:0;display:grid;max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.log li{display:grid;grid-template-columns:auto auto 1fr;gap:10px;padding:7px 12px;font-size:14px;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .t{font-family:var(--f-num);font-weight:700}
+.log .r{font-family:var(--f-num);color:var(--muted)}
+.log .empty{grid-template-columns:1fr;color:var(--muted)}
+.log-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.confirm{display:inline-flex;gap:8px;align-items:center;font-size:13.5px;color:var(--crit)}
+.btn.danger{border-color:var(--crit);color:var(--crit)}
+.toast{font-size:13px;color:var(--ok)}
+
+details.more{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+details.more summary{cursor:pointer;font-weight:700}
+.more ul{margin:10px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14.5px;max-width:80ch}
+footer{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:12px;font-size:13.5px;color:var(--muted)}
+footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.disclaimer{background:var(--warn-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="strip">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Sepsis Hour-1 導航</h1>
+      <p>依據 SSC 2026 ＋ Hour-1 bundle</p>
+    </div>
+    <div class="clock" aria-live="off">
+      <div class="clock-row">
+        <span class="label">T0 起算</span>
+        <span class="elapsed" id="elapsed">--:--:--</span>
+        <span class="t0txt" id="t0txt">尚未設定 T0</span>
+      </div>
+      <div class="bar" id="bar"><i></i></div>
+      <div class="bar-ticks"><span>0</span><span>15</span><span>30</span><span>45</span><span>60 分</span></div>
+    </div>
+    <div class="t0ctl">
+      <button class="btn primary" id="t0now" type="button">以現在為 T0</button>
+      <input type="datetime-local" id="t0input" aria-label="手動設定 T0 時間">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<div class="wrap">
+<main>
+
+  <section aria-labelledby="pt-h">
+    <div class="sec-head">
+      <h2 id="pt-h">病人數值</h2>
+      <span class="src">只存在這台裝置的瀏覽器，請勿輸入姓名或病歷號</span>
+    </div>
+    <div class="panel">
+      <div class="pt-grid">
+        <div class="field"><label for="f-age">年齡</label><input id="f-age" data-bind="age" type="number" inputmode="numeric" min="0" placeholder="歲"></div>
+        <div class="field"><label for="f-sex">性別</label><select id="f-sex" data-bind="sex"><option value="M">男</option><option value="F">女</option></select></div>
+        <div class="field"><label for="f-h">身高 <span class="unit">cm</span></label><input id="f-h" data-bind="height" type="number" inputmode="decimal" placeholder="cm"></div>
+        <div class="field"><label for="f-w">實際體重 <span class="unit">kg</span></label><input id="f-w" data-bind="weight" type="number" inputmode="decimal" placeholder="kg"></div>
+        <div class="field"><label for="f-map">MAP <span class="unit">mmHg</span></label><input id="f-map" data-bind="map" data-log="MAP|mmHg" type="number" inputmode="numeric" placeholder="mmHg"></div>
+        <div class="field"><label for="f-sbp">SBP <span class="unit">mmHg</span></label><input id="f-sbp" data-bind="sbp" data-log="SBP|mmHg" type="number" inputmode="numeric" placeholder="mmHg"></div>
+        <div class="field"><label for="f-l1">乳酸（初次） <span class="unit">mmol/L</span></label><input id="f-l1" data-bind="lac1" data-log="乳酸（初次）|mmol/L" type="number" inputmode="decimal" step="0.1" placeholder="mmol/L"></div>
+        <div class="field"><label for="f-l2">乳酸（複測） <span class="unit">mmol/L</span></label><input id="f-l2" data-bind="lac2" data-log="乳酸（複測）|mmol/L" type="number" inputmode="decimal" step="0.1" placeholder="mmol/L"></div>
+      </div>
+      <div class="derived" id="derived"></div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section aria-labelledby="b-h">
+      <div class="sec-head">
+        <h2 id="b-h">Hour-1 組合式照護</h2>
+        <span class="src">SSC Hour-1 bundle（2018）的 5 項，依 2026 版更新細節</span>
+      </div>
+      <div class="steps">
+
+        <article class="step" id="st-lactate">
+          <div class="step-no">1</div>
+          <div class="step-body">
+            <div class="step-head"><h3>測量乳酸</h3><span class="pill" data-pill="lactate"></span></div>
+            <p>初次乳酸 &gt;2 mmol/L 時，2–4 小時內複測。以連續乳酸引導復甦，但不以乳酸正常化為目標，也不要只因乳酸高就反射性給液。<span class="tag new">2026</span></p>
+            <div id="lac-extra"></div>
+            <button class="check" type="button" data-item="lactate" aria-pressed="false"><span class="box"></span><span class="lbl">已抽乳酸</span></button>
+          </div>
+        </article>
+
+        <article class="step" id="st-cultures">
+          <div class="step-no">2</div>
+          <div class="step-body">
+            <div class="step-head"><h3>抗生素前抽血液培養</h3><span class="pill" data-pill="cultures"></span></div>
+            <p>常規抽 2 套（需氧＋厭氧）。若抽培養會明顯延誤抗生素，先給抗生素。</p>
+            <button class="check" type="button" data-item="cultures" aria-pressed="false"><span class="box"></span><span class="lbl">已抽血液培養</span></button>
+          </div>
+        </article>
+
+        <article class="step" id="st-abx">
+          <div class="step-no">3</div>
+          <div class="step-body">
+            <div class="step-head"><h3>給予廣效抗生素</h3><span class="pill" data-pill="abx"></span></div>
+            <div class="radios" role="radiogroup" aria-label="臨床可能性">
+              <label><input type="radio" name="abxCat" value="shock"> <span>可能為敗血性休克，或很可能／確定為敗血症 <small>· 立即給，最好 1 小時內（強建議）</small></span></label>
+              <label><input type="radio" name="abxCat" value="possible"> <span>可能為敗血症、無休克 <small>· 快速評估，若仍懷疑則 3 小時內給（條件式建議）</small></span></label>
+              <label><input type="radio" name="abxCat" value="low"> <span>感染可能性低、無休克 <small>· 可考慮暫緩並密切監測</small></span></label>
+            </div>
+            <p>確認菌種與藥敏後要降階（2026 升為強建議）。β-lactam 在負荷劑量後以延長輸注維持（強建議）。<span class="tag new">2026</span></p>
+            <button class="check" type="button" data-item="abx" aria-pressed="false"><span class="box"></span><span class="lbl">已給第一劑抗生素</span></button>
+          </div>
+        </article>
+
+        <article class="step" id="st-fluid">
+          <div class="step-no">4</div>
+          <div class="step-body">
+            <div class="step-head"><h3>晶體輸液 30 mL/kg</h3><span class="pill" data-pill="fluid"></span></div>
+            <p>適用於低血壓（SBP &lt;90 或 MAP &lt;65）或乳酸 ≥4 mmol/L：3 小時內至少 30 mL/kg。優先用平衡晶體液，避免 starch 與 gelatin。之後以動態指標（PLR、SVV、PPV）個別化。</p>
+            <div class="fluid" id="fluid-box">
+              <div id="fluid-target" class="note"></div>
+              <div class="fluid-row">
+                <span>已給</span>
+                <input id="fluidGiven" type="number" inputmode="numeric" min="0" step="50" aria-label="已給輸液量 mL">
+                <span class="unit">mL</span>
+                <button class="btn small" type="button" data-add="250">+250</button>
+                <button class="btn small" type="button" data-add="500">+500</button>
+              </div>
+              <div class="meter" id="fluid-meter"><i></i></div>
+            </div>
+            <button class="check" type="button" data-item="fluid" aria-pressed="false"><span class="box"></span><span class="lbl">已開始輸液</span></button>
+          </div>
+        </article>
+
+        <article class="step" id="st-pressor">
+          <div class="step-no">5</div>
+          <div class="step-body">
+            <div class="step-head"><h3>升壓劑維持 MAP</h3><span class="pill" data-pill="pressor"></span></div>
+            <p>輸液中或輸液後仍低血壓就開始升壓劑；休克不穩定時可與輸液同時開始。可先走周邊靜脈，不要為了等中心靜脈導管而延誤。<span class="tag new">2026</span></p>
+            <div id="map-note" class="note"></div>
+            <button class="check" type="button" data-item="pressor" aria-pressed="false"><span class="box"></span><span class="lbl">已開始升壓劑</span></button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <div style="display:grid;gap:28px">
+      <section aria-labelledby="l-h">
+        <div class="sec-head">
+          <h2 id="l-h">升壓劑階梯</h2>
+          <span class="src">SSC 2026 升壓劑建議</span>
+        </div>
+        <div class="next" aria-live="polite">
+          <span class="label">建議下一步</span>
+          <p id="next-text"></p>
+        </div>
+        <div class="panel">
+          <div class="ladder">
+            <div class="rung" id="r-ne">
+              <div class="dot">1</div>
+              <div class="rung-body">
+                <h3>Norepinephrine 第一線</h3>
+                <p class="when">優先於 vasopressin、angiotensin II、dopamine。</p>
+                <div class="inline">
+                  <label for="ne">目前劑量</label>
+                  <input id="ne" data-bind="ne" data-log="NE 劑量|µg/kg/min" type="number" inputmode="decimal" min="0" step="0.01">
+                  <span class="unit">µg/kg/min</span>
+                  <span class="rate" id="ne-rate"></span>
+                </div>
+                <div class="inline">
+                  <label for="cardiac">心功能</label>
+                  <select id="cardiac" data-bind="cardiac">
+                    <option value="none">無明顯心功能不全</option>
+                    <option value="tachy">心功能不全＋心搏過速／快速心律不整</option>
+                    <option value="brady">心功能不全＋心搏過緩</option>
+                  </select>
+                </div>
+                <div id="cardiac-note"></div>
+              </div>
+            </div>
+            <div class="rung" id="r-vaso">
+              <div class="dot">2</div>
+              <div class="rung-body">
+                <h3>加上 Vasopressin</h3>
+                <p class="when">NE 劑量持續上升、達 0.25–0.5 µg/kg/min 時加入，不要單靠一直加 NE。常用 0.03 U/min 固定劑量。不建議用 terlipressin。</p>
+                <label class="inline"><input type="checkbox" id="vaso" data-bind="vaso"> 已加 vasopressin <span class="rate" id="vaso-rate"></span></label>
+              </div>
+            </div>
+            <div class="rung" id="r-epi">
+              <div class="dot">3</div>
+              <div class="rung-body">
+                <h3>加上 Epinephrine</h3>
+                <p class="when">已用 NE ＋ vasopressin，MAP 仍未達目標時加入。</p>
+                <div class="inline">
+                  <label><input type="checkbox" id="epiOn" data-bind="epiOn"> 已加 epinephrine</label>
+                  <input id="epi" data-bind="epi" data-log="Epi 劑量|µg/kg/min" type="number" inputmode="decimal" min="0" step="0.01" aria-label="Epinephrine 劑量">
+                  <span class="unit">µg/kg/min</span>
+                  <span class="rate" id="epi-rate"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="side">
+            <span class="label">另一條路：心功能不全</span>
+            <label class="inline"><input type="checkbox" id="hypoperf" data-bind="hypoperf"> 心功能不全，且在輸液足夠、血壓達標下仍持續低灌流</label>
+            <p class="when" style="font-size:13.5px;color:var(--muted)">建議 NE 加 dobutamine，或改單用 epinephrine（條件式建議）。</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="s-h">
+        <div class="sec-head">
+          <h2 id="s-h">類固醇</h2>
+          <span class="src">SSC 2026 · SCCM 2024 focused update</span>
+        </div>
+        <div class="panel steroid">
+          <div id="steroid-status" class="note"></div>
+          <p style="font-size:14px">2026 版：成人敗血性休克建議給 IV 類固醇（條件式建議，低確定性），不再要求須有持續的升壓劑需求。<span class="tag new">2026</span></p>
+          <div class="crit-list" id="steroid-crit"></div>
+          <div class="regimen">
+            <span class="label">常用處方</span>
+            <span>Hydrocortisone <b>200 mg/day</b>：50 mg IV q6h，或持續輸注</span>
+            <span>± Fludrocortisone <b>50 µg</b> PO qd（依 APROCCHSS 試驗，屬選項，非必要）</span>
+            <span style="color:var(--muted);font-size:13px">避免高劑量短療程（SCCM 2024）。劑量取自 SSC 2021 備註與 SCCM 2024，請依院內規範。</span>
+          </div>
+          <button class="check" type="button" data-item="steroid" aria-pressed="false"><span class="box"></span><span class="lbl">已開始 hydrocortisone</span></button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="tools">
+    <section aria-labelledby="c-h">
+      <div class="sec-head"><h2 id="c-h">滴速換算</h2><span class="src">濃度請改成院內配方</span></div>
+      <div class="panel calc">
+        <div class="calc-grid">
+          <div class="field"><label for="c-drug">藥物</label>
+            <select id="c-drug"><option value="ne">Norepinephrine</option><option value="epi">Epinephrine</option><option value="vaso">Vasopressin</option></select></div>
+          <div class="field"><label for="c-amt">藥量 <span class="unit" id="c-amt-u">mg</span></label><input id="c-amt" type="number" inputmode="decimal" min="0"></div>
+          <div class="field"><label for="c-vol">稀釋總量 <span class="unit">mL</span></label><input id="c-vol" type="number" inputmode="decimal" min="0"></div>
+        </div>
+        <div class="calc-out" id="c-conc"></div>
+        <div class="calc-grid">
+          <div class="field"><label for="c-dose">劑量 <span class="unit" id="c-dose-u">µg/kg/min</span></label><input id="c-dose" type="number" inputmode="decimal" min="0" step="0.01"></div>
+          <div class="field"><label for="c-rate">滴速 <span class="unit">mL/h</span></label><input id="c-rate" type="number" inputmode="decimal" min="0" step="0.1"></div>
+        </div>
+        <div class="calc-out" id="c-note"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="g-h">
+      <div class="sec-head"><h2 id="g-h">事件紀錄</h2><span class="src">可複製貼到護理或醫囑紀錄</span></div>
+      <ul class="log" id="log"></ul>
+      <div class="log-actions">
+        <button class="btn" type="button" id="copy">複製紀錄</button>
+        <span class="toast" id="toast" aria-live="polite"></span>
+        <span style="flex:1"></span>
+        <button class="btn danger" type="button" id="reset">清除並開始新病人</button>
+        <span class="confirm" id="confirm" hidden>確定清除全部資料？
+          <button class="btn small danger" type="button" id="reset-yes">清除</button>
+          <button class="btn small" type="button" id="reset-no">取消</button>
+        </span>
+      </div>
+      <textarea id="copybuf" hidden readonly style="width:100%;height:120px;margin-top:8px"></textarea>
+    </section>
+  </div>
+
+  <details class="more">
+    <summary>其他 SSC 2026 要點</summary>
+    <ul>
+      <li>篩檢：院內急性病人建議用 NEWS／NEWS2、MEWS 或 SIRS，而不是單用 qSOFA。</li>
+      <li>T0（時間零點）：急診以檢傷時間起算；其他單位以病歷上最早符合敗血症（器官功能障礙）的紀錄時間起算（Hour-1 bundle 2018）。</li>
+      <li>MAP 初始目標 65 mmHg（強建議）；65 歲以上可用 60–65 mmHg（條件式建議）。</li>
+      <li>BMI &gt;30 時，以調整體重或理想體重計算輸液量。</li>
+      <li>微血管回填時間（CRT）可作為評估灌流的輔助指標。</li>
+      <li>30 mL/kg 後仍低灌流時，依病人與醫療環境選擇較寬鬆或較保守的輸液策略；急性復甦期過後，建議主動移除多餘液體（利尿劑或脫水）。</li>
+      <li>白蛋白：不建議常規與晶體液併用。</li>
+      <li>不建議：starch、gelatin、IV 維生素 C、血液淨化（hemoperfusion、高劑量血液過濾、血漿置換）、經驗性抗黴菌藥（無危險因子時）、例行 sodium bicarbonate。</li>
+    </ul>
+  </details>
+
+  <footer>
+    <div class="disclaimer"><b>僅供臨床流程輔助與教學，不取代臨床判斷。</b>藥物劑量與稀釋濃度請依院內處方集，並經藥師確認。SSC 2026 部分細節（vasopressin 起始時機、類固醇處方）整理自學會摘要與 2021 版備註，正式使用前請以原文核對。</div>
+    <div>
+      <span class="label">出處</span>
+      <ol>
+        <li>Prescott HC, Antonelli M, Alhazzani W, et al. Surviving Sepsis Campaign: international guidelines for management of sepsis and septic shock 2026. <i>Intensive Care Med</i> 2026. <a href="https://doi.org/10.1007/s00134-026-08361-1">doi:10.1007/s00134-026-08361-1</a>；<i>Crit Care Med</i> 2026. <a href="https://doi.org/10.1097/CCM.0000000000007075">doi:10.1097/CCM.0000000000007075</a></li>
+        <li>Levy MM, Evans LE, Rhodes A. The Surviving Sepsis Campaign Bundle: 2018 update. <i>Crit Care Med</i> 2018;46:997–1000. <a href="https://doi.org/10.1097/CCM.0000000000003119">doi:10.1097/CCM.0000000000003119</a></li>
+        <li>Evans L, Rhodes A, Alhazzani W, et al. Surviving Sepsis Campaign 2021. <i>Crit Care Med</i> 2021;49:e1063–e1143. <a href="https://doi.org/10.1097/CCM.0000000000005337">doi:10.1097/CCM.0000000000005337</a></li>
+        <li>Chaudhuri D, et al. 2024 Focused update: guidelines on use of corticosteroids in sepsis, ARDS, and community-acquired pneumonia. <i>Crit Care Med</i> 2024.</li>
+        <li>Singer M, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). <i>JAMA</i> 2016;315:801–810. <a href="https://doi.org/10.1001/jama.2016.0287">doi:10.1001/jama.2016.0287</a></li>
+      </ol>
+    </div>
+  </footer>
+</main>
+</div>
+
+<script>
+(function(){
+const KEY='sepsis-h1-v1';
+const MIN=60000, HR=3600000;
+const def=()=>({t0:null,age:'',sex:'M',height:'',weight:'',wtMode:'adj',map:'',sbp:'',lac1:'',lac2:'',abxCat:'shock',
+  done:{},fluidGiven:0,ne:'',epi:'',vaso:false,epiOn:false,cardiac:'none',hypoperf:false,
+  conc:{ne:[4,250],epi:[4,250],vaso:[20,100]},calcDrug:'ne',log:[]});
+let S;
+try{S=Object.assign(def(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=def();}
+if(!S.done||typeof S.done!=='object')S.done={};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const n=v=>{const x=parseFloat(v);return isFinite(x)?x:NaN;};
+const pad=x=>String(x).padStart(2,'0');
+const clock=t=>{const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes());};
+const hm=ms=>{const neg=ms<0;ms=Math.abs(ms);const m=Math.floor(ms/MIN);return (neg?'-':'')+pad(Math.floor(m/60))+':'+pad(m%60);};
+const rel=t=>S.t0?'T+'+hm(t-S.t0):'';
+const dur=ms=>{const m=Math.floor(Math.abs(ms)/MIN);if(m<1)return '<1 分';const h=Math.floor(m/60);return (h?h+' 小時 ':'')+(m%60?(m%60)+' 分':'');};
+const fmt=(x,d=0)=>isFinite(x)?x.toFixed(d):'—';
+
+function log(text){S.log.push({t:Date.now(),text});save();renderLog();}
+
+function D(){
+  const age=n(S.age),h=n(S.height),w=n(S.weight),map=n(S.map),sbp=n(S.sbp),l1=n(S.lac1),l2=n(S.lac2);
+  const bmi=(h>0&&w>0)?w/((h/100)**2):NaN;
+  const ibw=h>0?(S.sex==='M'?50:45.5)+0.91*(h-152.4):NaN;
+  const adj=(ibw>0&&w>0)?ibw+0.4*(w-ibw):NaN;
+  const obese=bmi>30;
+  const dw=obese?(S.wtMode==='ibw'?ibw:adj):w;
+  const old=age>=65;
+  const tLow=old?60:65;
+  const hypo=(map<65)||(sbp<90);
+  const lacHigh=l1>2, lac4=l1>=4;
+  const fluidInd=hypo||lac4;
+  const target=dw>0?Math.round(dw*30/10)*10:NaN;
+  const ne=n(S.ne)||0, epi=S.epiOn?(n(S.epi)||0):0;
+  const pOn=!!S.done.pressor;
+  const lacAny=Math.max(isFinite(l1)?l1:0,isFinite(l2)?l2:0);
+  return {age,h,w,map,sbp,l1,l2,bmi,ibw,adj,obese,dw,old,tLow,hypo,lacHigh,lac4,fluidInd,target,ne,epi,pOn,lacAny,mapLow:map<tLow};
+}
+
+function deadline(key){
+  if(!S.t0)return null;
+  if(key==='lactate'||key==='cultures')return S.t0+HR;
+  if(key==='abx')return S.abxCat==='shock'?S.t0+HR:S.abxCat==='possible'?S.t0+3*HR:null;
+  if(key==='fluid')return S.t0+HR;
+  return null;
+}
+function status(key,applicable){
+  if(S.done[key])return {cls:'ok',txt:'完成 '+clock(S.done[key])+(S.t0?' · '+rel(S.done[key]):'')};
+  if(applicable===false)return {cls:'na',txt:'目前未符合適應症'};
+  const dl=deadline(key);
+  if(!dl)return {cls:'',txt:key==='abx'&&S.abxCat==='low'?'可暫緩，密切監測':'待執行'};
+  const left=dl-Date.now();
+  if(left<0)return {cls:'crit',txt:'已逾時 '+dur(left)};
+  if(left<15*MIN)return {cls:'warn',txt:'剩 '+dur(left)};
+  return {cls:'',txt:'期限 '+clock(dl)+' · 剩 '+dur(left)};
+}
+
+function rate(drug,dose){
+  const w=n(S.weight);const c=S.conc[drug];if(!c)return NaN;
+  const conc=c[0]/c[1];
+  if(drug==='vaso')return dose*60/conc;
+  if(!(w>0))return NaN;
+  return dose*w*60/(conc*1000);
+}
+
+function render(){
+  const d=D(), now=Date.now();
+  // strip
+  const el=$('#elapsed'),bar=$('#bar');
+  if(S.t0){
+    const ms=now-S.t0,s=Math.floor(Math.max(ms,0)/1000);
+    el.textContent=pad(Math.floor(s/3600))+':'+pad(Math.floor(s/60)%60)+':'+pad(s%60);
+    const pct=Math.min(100,Math.max(0,ms/HR*100));
+    bar.querySelector('i').style.width=pct+'%';
+    const st=ms>=HR?'crit':ms>=45*MIN?'warn':'';
+    el.className='elapsed '+st;bar.className='bar '+st;
+    $('#t0txt').textContent='T0 '+new Date(S.t0).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+  }else{
+    el.textContent='--:--:--';el.className='elapsed';bar.className='bar';bar.querySelector('i').style.width='0';
+    $('#t0txt').textContent='尚未設定 T0';
+  }
+  const doneN=['lactate','cultures','abx','fluid','pressor'].filter(k=>S.done[k]||(k==='fluid'&&!d.fluidInd)||(k==='pressor'&&!d.hypo)).length;
+  const chips=[];
+  chips.push(`<span class="chip ${doneN===5?'ok':''}">Bundle <b>${doneN}/5</b></span>`);
+  chips.push(`<span class="chip">MAP 目標 <b>${d.old?'60–65':'≥65'}</b></span>`);
+  if(isFinite(d.map))chips.push(`<span class="chip ${d.mapLow?'crit':'ok'}">MAP <b>${d.map}</b></span>`);
+  if(isFinite(d.l1))chips.push(`<span class="chip ${d.lac4?'crit':d.lacHigh?'warn':'ok'}">乳酸 <b>${d.l1}</b></span>`);
+  if(d.pOn&&d.lacAny>2)chips.push(`<span class="chip crit">符合 septic shock</span>`);
+  const ab=status('abx');
+  if(!S.done.abx&&S.t0&&deadline('abx'))chips.push(`<span class="chip ${ab.cls}">抗生素 ${ab.txt.replace('期限 ','')}</span>`);
+  $('#chips').innerHTML=chips.join('');
+
+  // derived
+  let dv=`<span>BMI <b>${fmt(d.bmi,1)}</b></span><span>IBW <b>${fmt(d.ibw,1)}</b> kg</span>`;
+  if(d.obese){
+    dv+=`<span>BMI &gt;30，輸液改用 <span class="seg" role="group" aria-label="輸液用體重"><button type="button" data-wt="adj" aria-pressed="${S.wtMode!=='ibw'}">調整體重 ${fmt(d.adj,1)}</button><button type="button" data-wt="ibw" aria-pressed="${S.wtMode==='ibw'}">理想體重 ${fmt(d.ibw,1)}</button></span></span>`;
+  }
+  dv+=`<span>輸液用體重 <b>${fmt(d.dw,1)}</b> kg</span><span>MAP 目標 <b>${d.old?'60–65':'65'}</b> mmHg${d.old?'（≥65 歲）':''}</span>`;
+  $('#derived').innerHTML=dv;
+
+  // pills
+  const setPill=(k,st)=>{const p=$(`[data-pill="${k}"]`);p.className='pill '+st.cls;p.textContent=st.txt;
+    const card=$('#st-'+k);if(card){card.classList.toggle('is-ok',st.cls==='ok');card.classList.toggle('is-crit',st.cls==='crit');}};
+  setPill('lactate',status('lactate'));
+  setPill('cultures',S.done.abx&&!S.done.cultures?{cls:'warn',txt:'抗生素已給，培養未記錄'}:status('cultures'));
+  setPill('abx',status('abx'));
+  setPill('fluid',status('fluid',d.fluidInd||!!S.done.fluid));
+  const pst=S.done.pressor?status('pressor'):d.hypo?(S.done.fluid?{cls:'crit',txt:'仍低血壓：開始升壓劑'}:{cls:'warn',txt:'低血壓：輸液中評估'}):{cls:'na',txt:'目前無低血壓'};
+  setPill('pressor',pst);
+
+  // lactate extra
+  let lx='';
+  if(d.lacHigh){
+    const base=S.done.lactate||S.t0;
+    lx=`<div class="note ${d.lac4?'crit':'warn'}">初次乳酸 ${d.l1} mmol/L ${d.lac4?'≥4：符合 30 mL/kg 輸液適應症。':'（&gt;2）：可能需復甦，避免惡化。'}`+
+      (base?` 複測時段 <b class="num">${clock(base+2*HR)}–${clock(base+4*HR)}</b>`:'')+
+      (isFinite(d.l2)?`；複測 ${d.l2} mmol/L（${d.l2<d.l1?'下降':'未下降'}）`:'')+`</div>`;
+  }
+  $('#lac-extra').innerHTML=lx;
+
+  // fluid
+  const ft=$('#fluid-target');
+  if(!(d.dw>0)){ft.className='note';ft.textContent='輸入體重（BMI >30 另需身高）後計算目標量。';}
+  else{
+    ft.className='note '+(d.fluidInd?'':'');
+    ft.innerHTML=`30 mL/kg × ${fmt(d.dw,1)} kg = <b class="num">${d.target} mL</b>`+(S.t0?`，於 <b class="num">${clock(S.t0+3*HR)}</b> 前給完`:'')+(d.fluidInd?'':'<br><span style="color:var(--muted)">目前沒有低血壓，乳酸也未達 4：不必例行給滿 30 mL/kg。</span>');
+  }
+  const pct=d.target>0?Math.min(100,S.fluidGiven/d.target*100):0;
+  const m=$('#fluid-meter');m.querySelector('i').style.width=pct+'%';m.classList.toggle('full',pct>=100);
+  if(document.activeElement!==$('#fluidGiven'))$('#fluidGiven').value=S.fluidGiven||'';
+
+  // MAP note
+  const mn=$('#map-note');
+  if(isFinite(d.map)){mn.className='note '+(d.mapLow?'crit':'ok');mn.textContent=`MAP ${d.map} mmHg，目標 ${d.old?'60–65（≥65 歲）':'65'} mmHg：${d.mapLow?'未達標':'已達標'}。`;}
+  else{mn.className='note';mn.textContent=`MAP 目標 ${d.old?'60–65 mmHg（≥65 歲，條件式建議）':'65 mmHg（強建議）'}。輸入 MAP 以判斷是否達標。`;}
+
+  // check buttons
+  $$('.check').forEach(b=>{const k=b.dataset.item,on=!!S.done[k];b.setAttribute('aria-pressed',on);
+    const base={lactate:'已抽乳酸',cultures:'已抽血液培養',abx:'已給第一劑抗生素',fluid:'已開始輸液',pressor:'已開始升壓劑',steroid:'已開始 hydrocortisone'}[k];
+    b.querySelector('.lbl').textContent=on?base+'（點擊取消）':base;});
+
+  // ladder
+  const rungs={ne:'wait',vaso:'wait',epi:'wait'};
+  if(d.pOn)rungs.ne='done';else if(d.hypo)rungs.ne='current';
+  if(S.vaso)rungs.vaso='done';else if(d.pOn&&d.ne>=0.25)rungs.vaso='current';
+  if(S.epiOn)rungs.epi='done';else if(S.vaso&&d.mapLow)rungs.epi='current';
+  $('#r-ne').dataset.state=rungs.ne;$('#r-vaso').dataset.state=rungs.vaso;$('#r-epi').dataset.state=rungs.epi;
+  const r1=rate('ne',d.ne);
+  $('#ne-rate').textContent=d.ne>0?(isFinite(r1)?`≈ ${r1.toFixed(1)} mL/h（${S.conc.ne[0]} mg/${S.conc.ne[1]} mL）`:'輸入體重以換算 mL/h'):'';
+  const r2=rate('epi',d.epi);
+  $('#epi-rate').textContent=S.epiOn&&d.epi>0&&isFinite(r2)?`≈ ${r2.toFixed(1)} mL/h`:'';
+  $('#vaso-rate').textContent=S.vaso?`0.03 U/min ≈ ${rate('vaso',0.03).toFixed(1)} mL/h（${S.conc.vaso[0]} U/${S.conc.vaso[1]} mL）`:'';
+  $('#cardiac-note').innerHTML=S.cardiac==='tachy'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；有心搏過速或快速心律不整時優先用 NE。</div>':
+    S.cardiac==='brady'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；心搏過緩時可選 epinephrine。</div>':'';
+
+  // next step
+  const tg=d.old?'60–65':'65';
+  let nx;
+  if(!S.t0)nx='按上方「以現在為 T0」開始計時，再依序完成 Hour-1 組合式照護。';
+  else if(d.hypo&&!d.pOn)nx=S.done.fluid?`輸液中或輸液後仍低血壓：開始 norepinephrine（可先走周邊靜脈），MAP 目標 ${tg} mmHg。`:`低血壓：開始 30 mL/kg 平衡晶體液；休克不穩定時可同時開始 norepinephrine。`;
+  else if(d.pOn&&d.ne>=0.25&&!S.vaso)nx=`NE 已達 ${d.ne} µg/kg/min（≥0.25）：加上 vasopressin 0.03 U/min，不要單靠一直加 NE。`;
+  else if(S.vaso&&d.mapLow&&!S.epiOn)nx=`已用 NE ＋ vasopressin，MAP 仍低於 ${tg}：加上 epinephrine。`;
+  else if(S.hypoperf)nx='心功能不全且仍低灌流：NE 加 dobutamine，或改單用 epinephrine。';
+  else if(d.pOn)nx=`維持 MAP ${tg} mmHg；以 CRT、連續乳酸與動態指標評估灌流，達標後逐步調降。`;
+  else nx='目前無低血壓，不需升壓劑；持續監測 MAP、乳酸與灌流。';
+  $('#next-text').textContent=nx;
+
+  // steroid
+  const ss=$('#steroid-status');
+  if(S.done.steroid){ss.className='note ok';ss.textContent=`已於 ${clock(S.done.steroid)} 開始 hydrocortisone。`;}
+  else if(d.pOn&&d.lacAny>2){ss.className='note warn';ss.textContent='符合 Sepsis-3 敗血性休克（使用升壓劑且乳酸 >2）：可考慮開始 IV 類固醇。';}
+  else if(d.pOn){ss.className='note warn';ss.textContent='使用升壓劑中；Sepsis-3 敗血性休克的定義另需在足夠輸液後乳酸仍 >2 mmol/L。';}
+  else{ss.className='note';ss.textContent='尚未使用升壓劑，目前不符合敗血性休克。';}
+  const hi=d.ne>=0.25||d.epi>=0.25;
+  const since=d.pOn?now-S.done.pressor:NaN;
+  $('#steroid-crit').innerHTML=`<span class="label">SSC 2021 舊觸發點（參考）</span>
+    <div><span class="mark ${hi?'y':'n'}">${hi?'✓':'–'}</span><span>NE 或 Epi ≥0.25 µg/kg/min（目前 NE ${d.ne||0}${S.epiOn?'，Epi '+(d.epi||0):''}）</span></div>
+    <div><span class="mark ${since>=4*HR?'y':'n'}">${since>=4*HR?'✓':'–'}</span><span>開始升壓劑已 ≥4 小時${d.pOn?`（已 ${dur(since)||'<1 分'}${since<4*HR?'，於 '+clock(S.done.pressor+4*HR)+' 滿 4 小時':''}）`:''}</span></div>`;
+}
+
+function renderLog(){
+  const ul=$('#log');
+  if(!S.log.length){ul.innerHTML='<li class="empty">尚無事件。設定 T0 或勾選項目後會自動記錄。</li>';return;}
+  ul.innerHTML=S.log.slice().reverse().map(e=>`<li><span class="t">${clock(e.t)}</span><span class="r">${S.t0?rel(e.t):''}</span><span>${e.text.replace(/</g,'&lt;')}</span></li>`).join('');
+}
+
+// ---- bindings
+function fill(){
+  $$('[data-bind]').forEach(i=>{const k=i.dataset.bind;if(i.type==='checkbox')i.checked=!!S[k];else i.value=S[k]??'';});
+  $$('input[name="abxCat"]').forEach(r=>r.checked=r.value===S.abxCat);
+  if(S.t0){const d=new Date(S.t0);$('#t0input').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+  else $('#t0input').value='';
+  $('#c-drug').value=S.calcDrug;fillCalc();
+}
+$$('[data-bind]').forEach(i=>{
+  const k=i.dataset.bind;
+  i.addEventListener('input',()=>{S[k]=i.type==='checkbox'?i.checked:i.value;save();render();});
+  i.addEventListener('change',()=>{
+    if(i.type==='checkbox'){
+      const names={vaso:'加上 vasopressin',epiOn:'加上 epinephrine',hypoperf:'心功能不全＋持續低灌流'};
+      if(names[k])log((i.checked?'':'取消：')+names[k]);
+    }else if(i.dataset.log&&i.value!==''){const [lab,u]=i.dataset.log.split('|');log(`${lab} ${i.value} ${u}`);}
+  });
+});
+$$('input[name="abxCat"]').forEach(r=>r.addEventListener('change',()=>{S.abxCat=r.value;save();render();}));
+$('#derived').addEventListener('click',e=>{const b=e.target.closest('[data-wt]');if(!b)return;S.wtMode=b.dataset.wt;save();render();});
+
+const itemText={lactate:'抽乳酸',cultures:'抽血液培養',abx:'給第一劑抗生素',fluid:'開始晶體輸液',pressor:'開始升壓劑',steroid:'開始 hydrocortisone'};
+$$('.check').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.item;
+  if(S.done[k]){delete S.done[k];log('取消：'+itemText[k]);}
+  else{S.done[k]=Date.now();log(itemText[k]);}
+  save();render();
+}));
+
+$('#t0now').addEventListener('click',()=>{S.t0=Date.now();save();log('設定 T0');fill();render();renderLog();});
+$('#t0input').addEventListener('change',e=>{const t=new Date(e.target.value).getTime();if(isFinite(t)){S.t0=t;save();log('手動設定 T0 為 '+clock(t));render();renderLog();}});
+
+$('#fluidGiven').addEventListener('input',e=>{S.fluidGiven=Math.max(0,n(e.target.value)||0);save();render();});
+$('#fluidGiven').addEventListener('change',()=>log(`輸液累計 ${S.fluidGiven} mL`));
+$$('[data-add]').forEach(b=>b.addEventListener('click',()=>{S.fluidGiven=(S.fluidGiven||0)+ +b.dataset.add;save();log(`輸液 +${b.dataset.add} mL（累計 ${S.fluidGiven} mL）`);render();}));
+
+// calculator
+function fillCalc(){
+  const dr=S.calcDrug,c=S.conc[dr];
+  $('#c-amt').value=c[0];$('#c-vol').value=c[1];
+  $('#c-amt-u').textContent=dr==='vaso'?'U':'mg';
+  $('#c-dose-u').textContent=dr==='vaso'?'U/min':'µg/kg/min';
+  $('#c-dose').value='';$('#c-rate').value='';
+  if(dr==='vaso')$('#c-dose').value='0.03';
+  else if(dr==='ne'&&n(S.ne)>0)$('#c-dose').value=S.ne;
+  else if(dr==='epi'&&n(S.epi)>0)$('#c-dose').value=S.epi;
+  calcFromDose();
+}
+function calcInfo(){
+  const dr=S.calcDrug,c=S.conc[dr],conc=c[0]/c[1];
+  $('#c-conc').innerHTML=isFinite(conc)&&conc>0?`濃度 <b>${dr==='vaso'?conc.toFixed(3)+' U/mL':(conc*1000).toFixed(1)+' µg/mL'}</b>`:'輸入藥量與稀釋總量';
+  const w=n(S.weight);
+  $('#c-note').innerHTML=dr==='vaso'?'Vasopressin 不依體重計算。':(w>0?`以實際體重 <b>${w} kg</b> 計算（依院內規範，肥胖病人可能改用其他體重）。`:'<span style="color:var(--crit)">請先在「病人數值」輸入體重。</span>');
+}
+function calcFromDose(){calcInfo();const r=rate(S.calcDrug,n($('#c-dose').value));$('#c-rate').value=isFinite(r)&&r>0?r.toFixed(1):'';}
+function calcFromRate(){calcInfo();const dr=S.calcDrug,r=n($('#c-rate').value),one=rate(dr,1);$('#c-dose').value=isFinite(r)&&one>0?(r/one).toFixed(dr==='vaso'?3:3):'';}
+$('#c-drug').addEventListener('change',e=>{S.calcDrug=e.target.value;save();fillCalc();});
+['#c-amt','#c-vol'].forEach((s,i)=>$(s).addEventListener('input',e=>{S.conc[S.calcDrug][i]=n(e.target.value)||0;save();calcFromDose();render();}));
+$('#c-dose').addEventListener('input',calcFromDose);
+$('#c-rate').addEventListener('input',calcFromRate);
+
+// log actions
+$('#copy').addEventListener('click',()=>{
+  const lines=[`Sepsis Hour-1 紀錄${S.t0?'（T0 '+new Date(S.t0).toLocaleString('zh-TW',{hour12:false})+'）':''}`]
+    .concat(S.log.map(e=>`${clock(e.t)}${S.t0?' '+rel(e.t):''}  ${e.text}`)).join('\n');
+  const ta=$('#copybuf');
+  const ok=()=>{$('#toast').textContent='已複製';ta.hidden=true;setTimeout(()=>$('#toast').textContent='',2000);};
+  const fail=()=>{ta.value=lines;ta.hidden=false;ta.select();$('#toast').textContent='無法自動複製，請手動複製下方文字';};
+  try{navigator.clipboard.writeText(lines).then(ok,fail);}catch(e){fail();}
+});
+$('#reset').addEventListener('click',()=>{$('#confirm').hidden=false;$('#reset').hidden=true;});
+$('#reset-no').addEventListener('click',()=>{$('#confirm').hidden=true;$('#reset').hidden=false;});
+$('#reset-yes').addEventListener('click',()=>{const conc=S.conc;S=def();S.conc=conc;save();$('#confirm').hidden=true;$('#reset').hidden=false;$('#copybuf').hidden=true;fill();render();renderLog();});
+
+fill();render();renderLog();
+setInterval(render,1000);
+})();
+</script>
+</body>
+</html>
