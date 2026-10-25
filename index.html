@@ -93,7 +93,8 @@ main{display:grid;gap:28px;padding-block:24px 48px}
 
 .cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
 @media (max-width:900px){.cols{grid-template-columns:1fr}.strip .wrap{grid-template-columns:1fr auto}.clock{grid-column:1/-1;grid-row:2}}
-@media (max-width:520px){.strip .wrap{grid-template-columns:1fr}.t0ctl{justify-content:flex-start}}
+@media (max-width:520px){.strip .wrap{grid-template-columns:1fr;gap:8px;padding-block:8px}.t0ctl{justify-content:flex-start}
+  .brand p,.bar-ticks{display:none}.brand h1{font-size:17px}.t0ctl input{flex:1;min-width:0}.strip .btn{padding:5px 10px;font-size:13px}.chip{font-size:12px;padding:2px 8px}}
 
 /* bundle steps */
 .steps{display:grid;gap:12px}
@@ -472,6 +473,9 @@ const def=()=>({t0:null,age:'',sex:'M',height:'',weight:'',wtMode:'adj',map:'',s
 let S;
 try{S=Object.assign(def(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=def();}
 if(!S.done||typeof S.done!=='object')S.done={};
+if(!Array.isArray(S.log))S.log=[];
+if(!S.conc||typeof S.conc!=='object')S.conc=def().conc;
+for(const k in def().conc)if(!Array.isArray(S.conc[k]))S.conc[k]=def().conc[k];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -482,6 +486,9 @@ const hm=ms=>{const neg=ms<0;ms=Math.abs(ms);const m=Math.floor(ms/MIN);return (
 const rel=t=>S.t0?'T+'+hm(t-S.t0):'';
 const dur=ms=>{const m=Math.floor(Math.abs(ms)/MIN);if(m<1)return '<1 分';const h=Math.floor(m/60);return (h?h+' 小時 ':'')+(m%60?(m%60)+' 分':'');};
 const fmt=(x,d=0)=>isFinite(x)?x.toFixed(d):'—';
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const setHTML=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h;}};
+const setText=(el,t)=>{el._h=undefined;if(el.textContent!==t)el.textContent=t;};
 
 function log(text){S.log.push({t:Date.now(),text});save();renderLog();}
 
@@ -500,8 +507,12 @@ function D(){
   const target=dw>0?Math.round(dw*30/10)*10:NaN;
   const ne=n(S.ne)||0, epi=S.epiOn?(n(S.epi)||0):0;
   const pOn=!!S.done.pressor;
+  const mapLow=map<tLow;
+  // 升壓劑需求依年齡 MAP 目標；未輸入 MAP 時以 SBP <90 判斷
+  const pNeed=isFinite(map)?mapLow:sbp<90;
+  const bpKnown=isFinite(map)||isFinite(sbp);
   const lacAny=Math.max(isFinite(l1)?l1:0,isFinite(l2)?l2:0);
-  return {age,h,w,map,sbp,l1,l2,bmi,ibw,adj,obese,dw,old,tLow,hypo,lacHigh,lac4,fluidInd,target,ne,epi,pOn,lacAny,mapLow:map<tLow};
+  return {age,h,w,map,sbp,l1,l2,bmi,ibw,adj,obese,dw,old,tLow,hypo,lacHigh,lac4,fluidInd,target,ne,epi,pOn,lacAny,mapLow,pNeed,bpKnown};
 }
 
 function deadline(key){
@@ -525,6 +536,7 @@ function status(key,applicable){
 function rate(drug,dose){
   const w=n(S.weight);const c=S.conc[drug];if(!c)return NaN;
   const conc=c[0]/c[1];
+  if(!(conc>0&&isFinite(conc)))return NaN;
   if(drug==='vaso')return dose*60/conc;
   if(!(w>0))return NaN;
   return dose*w*60/(conc*1000);
@@ -541,21 +553,25 @@ function render(){
     bar.querySelector('i').style.width=pct+'%';
     const st=ms>=HR?'crit':ms>=45*MIN?'warn':'';
     el.className='elapsed '+st;bar.className='bar '+st;
-    $('#t0txt').textContent='T0 '+new Date(S.t0).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+    setText($('#t0txt'),'T0 '+new Date(S.t0).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}));
   }else{
     el.textContent='--:--:--';el.className='elapsed';bar.className='bar';bar.querySelector('i').style.width='0';
-    $('#t0txt').textContent='尚未設定 T0';
+    setText($('#t0txt'),'尚未設定 T0');
   }
-  const doneN=['lactate','cultures','abx','fluid','pressor'].filter(k=>S.done[k]||(k==='fluid'&&!d.fluidInd)||(k==='pressor'&&!d.hypo)).length;
+  setText($('#t0now'),t0Arm?'再按一次確認重設':S.t0?'重設 T0 為現在':'以現在為 T0');
+  // 只計入目前適用的項目；尚未輸入血壓時輸液／升壓劑仍算待評估
+  const items=['lactate','cultures','abx','fluid','pressor'].filter(k=>S.done[k]||
+    !((k==='fluid'&&d.bpKnown&&!d.fluidInd)||(k==='pressor'&&d.bpKnown&&!d.pNeed)||(k==='abx'&&S.abxCat==='low')));
+  const doneN=items.filter(k=>S.done[k]).length;
   const chips=[];
-  chips.push(`<span class="chip ${doneN===5?'ok':''}">Bundle <b>${doneN}/5</b></span>`);
+  chips.push(`<span class="chip ${doneN===items.length?'ok':''}">Bundle <b>${doneN}/${items.length}</b></span>`);
   chips.push(`<span class="chip">MAP 目標 <b>${d.old?'60–65':'≥65'}</b></span>`);
   if(isFinite(d.map))chips.push(`<span class="chip ${d.mapLow?'crit':'ok'}">MAP <b>${d.map}</b></span>`);
   if(isFinite(d.l1))chips.push(`<span class="chip ${d.lac4?'crit':d.lacHigh?'warn':'ok'}">乳酸 <b>${d.l1}</b></span>`);
   if(d.pOn&&d.lacAny>2)chips.push(`<span class="chip crit">符合 septic shock</span>`);
   const ab=status('abx');
   if(!S.done.abx&&S.t0&&deadline('abx'))chips.push(`<span class="chip ${ab.cls}">抗生素 ${ab.txt.replace('期限 ','')}</span>`);
-  $('#chips').innerHTML=chips.join('');
+  setHTML($('#chips'),chips.join(''));
 
   // derived
   let dv=`<span>BMI <b>${fmt(d.bmi,1)}</b></span><span>IBW <b>${fmt(d.ibw,1)}</b> kg</span>`;
@@ -563,16 +579,16 @@ function render(){
     dv+=`<span>BMI &gt;30，輸液改用 <span class="seg" role="group" aria-label="輸液用體重"><button type="button" data-wt="adj" aria-pressed="${S.wtMode!=='ibw'}">調整體重 ${fmt(d.adj,1)}</button><button type="button" data-wt="ibw" aria-pressed="${S.wtMode==='ibw'}">理想體重 ${fmt(d.ibw,1)}</button></span></span>`;
   }
   dv+=`<span>輸液用體重 <b>${fmt(d.dw,1)}</b> kg</span><span>MAP 目標 <b>${d.old?'60–65':'65'}</b> mmHg${d.old?'（≥65 歲）':''}</span>`;
-  $('#derived').innerHTML=dv;
+  setHTML($('#derived'),dv);
 
   // pills
-  const setPill=(k,st)=>{const p=$(`[data-pill="${k}"]`);p.className='pill '+st.cls;p.textContent=st.txt;
+  const setPill=(k,st)=>{const p=$(`[data-pill="${k}"]`);p.className='pill '+st.cls;setText(p,st.txt);
     const card=$('#st-'+k);if(card){card.classList.toggle('is-ok',st.cls==='ok');card.classList.toggle('is-crit',st.cls==='crit');}};
   setPill('lactate',status('lactate'));
   setPill('cultures',S.done.abx&&!S.done.cultures?{cls:'warn',txt:'抗生素已給，培養未記錄'}:status('cultures'));
   setPill('abx',status('abx'));
   setPill('fluid',status('fluid',d.fluidInd||!!S.done.fluid));
-  const pst=S.done.pressor?status('pressor'):d.hypo?(S.done.fluid?{cls:'crit',txt:'仍低血壓：開始升壓劑'}:{cls:'warn',txt:'低血壓：輸液中評估'}):{cls:'na',txt:'目前無低血壓'};
+  const pst=S.done.pressor?status('pressor'):d.pNeed?(S.done.fluid?{cls:'crit',txt:'仍低血壓：開始升壓劑'}:{cls:'warn',txt:'低血壓：輸液中評估'}):d.bpKnown?{cls:'na',txt:'MAP 已達目標'}:{cls:'',txt:'輸入 MAP／SBP 以判斷'};
   setPill('pressor',pst);
 
   // lactate extra
@@ -581,16 +597,18 @@ function render(){
     const base=S.done.lactate||S.t0;
     lx=`<div class="note ${d.lac4?'crit':'warn'}">初次乳酸 ${d.l1} mmol/L ${d.lac4?'≥4：符合 30 mL/kg 輸液適應症。':'（&gt;2）：可能需復甦，避免惡化。'}`+
       (base?` 複測時段 <b class="num">${clock(base+2*HR)}–${clock(base+4*HR)}</b>`:'')+
-      (isFinite(d.l2)?`；複測 ${d.l2} mmol/L（${d.l2<d.l1?'下降':'未下降'}）`:'')+`</div>`;
+      (isFinite(d.l2)?`；複測 ${d.l2} mmol/L（${d.l2<d.l1?'下降':'未下降'}）`:
+        base&&now>base+4*HR?'；<b>已超過複測時段，尚未記錄複測值</b>':base&&now>=base+2*HR?'；<b>現在應複測</b>':'')+`</div>`;
   }
-  $('#lac-extra').innerHTML=lx;
+  setHTML($('#lac-extra'),lx);
 
   // fluid
   const ft=$('#fluid-target');
-  if(!(d.dw>0)){ft.className='note';ft.textContent='輸入體重（BMI >30 另需身高）後計算目標量。';}
+  if(!(d.dw>0)){ft.className='note';setText(ft,'輸入體重（BMI >30 另需身高）後計算目標量。');}
   else{
-    ft.className='note '+(d.fluidInd?'':'');
-    ft.innerHTML=`30 mL/kg × ${fmt(d.dw,1)} kg = <b class="num">${d.target} mL</b>`+(S.t0?`，於 <b class="num">${clock(S.t0+3*HR)}</b> 前給完`:'')+(d.fluidInd?'':'<br><span style="color:var(--muted)">目前沒有低血壓，乳酸也未達 4：不必例行給滿 30 mL/kg。</span>');
+    const late=d.fluidInd&&S.t0&&now>S.t0+3*HR&&S.fluidGiven<d.target;
+    ft.className='note'+(late?' warn':'');
+    setHTML(ft,`30 mL/kg × ${fmt(d.dw,1)} kg = <b class="num">${d.target} mL</b>`+(S.t0?`，於 <b class="num">${clock(S.t0+3*HR)}</b> 前給完`:'')+(d.fluidInd?'':'<br><span style="color:var(--muted)">目前沒有低血壓，乳酸也未達 4：不必例行給滿 30 mL/kg。</span>')+(late?`<br><b>已過 3 小時，仍差 ${d.target-S.fluidGiven} mL</b>（若已改用動態指標個別化可忽略）`:''));
   }
   const pct=d.target>0?Math.min(100,S.fluidGiven/d.target*100):0;
   const m=$('#fluid-meter');m.querySelector('i').style.width=pct+'%';m.classList.toggle('full',pct>=100);
@@ -598,57 +616,59 @@ function render(){
 
   // MAP note
   const mn=$('#map-note');
-  if(isFinite(d.map)){mn.className='note '+(d.mapLow?'crit':'ok');mn.textContent=`MAP ${d.map} mmHg，目標 ${d.old?'60–65（≥65 歲）':'65'} mmHg：${d.mapLow?'未達標':'已達標'}。`;}
-  else{mn.className='note';mn.textContent=`MAP 目標 ${d.old?'60–65 mmHg（≥65 歲，條件式建議）':'65 mmHg（強建議）'}。輸入 MAP 以判斷是否達標。`;}
+  if(isFinite(d.map)){mn.className='note '+(d.mapLow?'crit':'ok');setText(mn,`MAP ${d.map} mmHg，目標 ${d.old?'60–65（≥65 歲）':'65'} mmHg：${d.mapLow?'未達標':'已達標'}。`);}
+  else{mn.className='note';setText(mn,`MAP 目標 ${d.old?'60–65 mmHg（≥65 歲，條件式建議）':'65 mmHg（強建議）'}。輸入 MAP 以判斷是否達標。`);}
 
   // check buttons
   $$('.check').forEach(b=>{const k=b.dataset.item,on=!!S.done[k];b.setAttribute('aria-pressed',on);
     const base={lactate:'已抽乳酸',cultures:'已抽血液培養',abx:'已給第一劑抗生素',fluid:'已開始輸液',pressor:'已開始升壓劑',steroid:'已開始 hydrocortisone'}[k];
-    b.querySelector('.lbl').textContent=on?base+'（點擊取消）':base;});
+    setText(b.querySelector('.lbl'),on?base+'（點擊取消）':base);});
 
   // ladder
   const rungs={ne:'wait',vaso:'wait',epi:'wait'};
-  if(d.pOn)rungs.ne='done';else if(d.hypo)rungs.ne='current';
+  if(d.pOn)rungs.ne='done';else if(d.pNeed)rungs.ne='current';
   if(S.vaso)rungs.vaso='done';else if(d.pOn&&d.ne>=0.25)rungs.vaso='current';
   if(S.epiOn)rungs.epi='done';else if(S.vaso&&d.mapLow)rungs.epi='current';
   $('#r-ne').dataset.state=rungs.ne;$('#r-vaso').dataset.state=rungs.vaso;$('#r-epi').dataset.state=rungs.epi;
   const r1=rate('ne',d.ne);
-  $('#ne-rate').textContent=d.ne>0?(isFinite(r1)?`≈ ${r1.toFixed(1)} mL/h（${S.conc.ne[0]} mg/${S.conc.ne[1]} mL）`:'輸入體重以換算 mL/h'):'';
+  setText($('#ne-rate'),d.ne>0?(isFinite(r1)?`≈ ${r1.toFixed(1)} mL/h（${S.conc.ne[0]} mg/${S.conc.ne[1]} mL）`:n(S.weight)>0?'請在滴速換算設定 NE 濃度':'輸入體重以換算 mL/h'):'');
   const r2=rate('epi',d.epi);
-  $('#epi-rate').textContent=S.epiOn&&d.epi>0&&isFinite(r2)?`≈ ${r2.toFixed(1)} mL/h`:'';
-  $('#vaso-rate').textContent=S.vaso?`0.03 U/min ≈ ${rate('vaso',0.03).toFixed(1)} mL/h（${S.conc.vaso[0]} U/${S.conc.vaso[1]} mL）`:'';
-  $('#cardiac-note').innerHTML=S.cardiac==='tachy'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；有心搏過速或快速心律不整時優先用 NE。</div>':
-    S.cardiac==='brady'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；心搏過緩時可選 epinephrine。</div>':'';
+  setText($('#epi-rate'),S.epiOn&&d.epi>0&&isFinite(r2)?`≈ ${r2.toFixed(1)} mL/h`:'');
+  const r3=rate('vaso',0.03);
+  setText($('#vaso-rate'),S.vaso&&isFinite(r3)?`0.03 U/min ≈ ${r3.toFixed(1)} mL/h（${S.conc.vaso[0]} U/${S.conc.vaso[1]} mL）`:'');
+  setHTML($('#cardiac-note'),S.cardiac==='tachy'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；有心搏過速或快速心律不整時優先用 NE。</div>':
+    S.cardiac==='brady'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；心搏過緩時可選 epinephrine。</div>':'');
 
   // next step
   const tg=d.old?'60–65':'65';
   let nx;
   if(!S.t0)nx='按上方「以現在為 T0」開始計時，再依序完成 Hour-1 組合式照護。';
-  else if(d.hypo&&!d.pOn)nx=S.done.fluid?`輸液中或輸液後仍低血壓：開始 norepinephrine（可先走周邊靜脈），MAP 目標 ${tg} mmHg。`:`低血壓：開始 30 mL/kg 平衡晶體液；休克不穩定時可同時開始 norepinephrine。`;
+  else if(d.pNeed&&!d.pOn)nx=S.done.fluid?`輸液中或輸液後仍低血壓：開始 norepinephrine（可先走周邊靜脈），MAP 目標 ${tg} mmHg。`:`低血壓：開始 30 mL/kg 平衡晶體液；休克不穩定時可同時開始 norepinephrine。`;
   else if(d.pOn&&d.ne>=0.25&&!S.vaso)nx=`NE 已達 ${d.ne} µg/kg/min（≥0.25）：加上 vasopressin 0.03 U/min，不要單靠一直加 NE。`;
   else if(S.vaso&&d.mapLow&&!S.epiOn)nx=`已用 NE ＋ vasopressin，MAP 仍低於 ${tg}：加上 epinephrine。`;
   else if(S.hypoperf)nx='心功能不全且仍低灌流：NE 加 dobutamine，或改單用 epinephrine。';
   else if(d.pOn)nx=`維持 MAP ${tg} mmHg；以 CRT、連續乳酸與動態指標評估灌流，達標後逐步調降。`;
-  else nx='目前無低血壓，不需升壓劑；持續監測 MAP、乳酸與灌流。';
-  $('#next-text').textContent=nx;
+  else if(!d.bpKnown)nx='輸入 MAP 或 SBP 以判斷是否需要輸液與升壓劑。';
+  else nx='目前 MAP 已達目標，不需升壓劑；持續監測 MAP、乳酸與灌流。';
+  setText($('#next-text'),nx);
 
   // steroid
   const ss=$('#steroid-status');
-  if(S.done.steroid){ss.className='note ok';ss.textContent=`已於 ${clock(S.done.steroid)} 開始 hydrocortisone。`;}
-  else if(d.pOn&&d.lacAny>2){ss.className='note warn';ss.textContent='符合 Sepsis-3 敗血性休克（使用升壓劑且乳酸 >2）：可考慮開始 IV 類固醇。';}
-  else if(d.pOn){ss.className='note warn';ss.textContent='使用升壓劑中；Sepsis-3 敗血性休克的定義另需在足夠輸液後乳酸仍 >2 mmol/L。';}
-  else{ss.className='note';ss.textContent='尚未使用升壓劑，目前不符合敗血性休克。';}
+  if(S.done.steroid){ss.className='note ok';setText(ss,`已於 ${clock(S.done.steroid)} 開始 hydrocortisone。`);}
+  else if(d.pOn&&d.lacAny>2){ss.className='note warn';setText(ss,'符合 Sepsis-3 敗血性休克（使用升壓劑且乳酸 >2）：可考慮開始 IV 類固醇。');}
+  else if(d.pOn){ss.className='note warn';setText(ss,'使用升壓劑中；Sepsis-3 敗血性休克的定義另需在足夠輸液後乳酸仍 >2 mmol/L。');}
+  else{ss.className='note';setText(ss,'尚未使用升壓劑，目前不符合敗血性休克。');}
   const hi=d.ne>=0.25||d.epi>=0.25;
   const since=d.pOn?now-S.done.pressor:NaN;
-  $('#steroid-crit').innerHTML=`<span class="label">SSC 2021 舊觸發點（參考）</span>
+  setHTML($('#steroid-crit'),`<span class="label">SSC 2021 舊觸發點（參考）</span>
     <div><span class="mark ${hi?'y':'n'}">${hi?'✓':'–'}</span><span>NE 或 Epi ≥0.25 µg/kg/min（目前 NE ${d.ne||0}${S.epiOn?'，Epi '+(d.epi||0):''}）</span></div>
-    <div><span class="mark ${since>=4*HR?'y':'n'}">${since>=4*HR?'✓':'–'}</span><span>開始升壓劑已 ≥4 小時${d.pOn?`（已 ${dur(since)||'<1 分'}${since<4*HR?'，於 '+clock(S.done.pressor+4*HR)+' 滿 4 小時':''}）`:''}</span></div>`;
+    <div><span class="mark ${since>=4*HR?'y':'n'}">${since>=4*HR?'✓':'–'}</span><span>開始升壓劑已 ≥4 小時${d.pOn?`（已 ${dur(since)||'<1 分'}${since<4*HR?'，於 '+clock(S.done.pressor+4*HR)+' 滿 4 小時':''}）`:''}</span></div>`);
 }
 
 function renderLog(){
   const ul=$('#log');
   if(!S.log.length){ul.innerHTML='<li class="empty">尚無事件。設定 T0 或勾選項目後會自動記錄。</li>';return;}
-  ul.innerHTML=S.log.slice().reverse().map(e=>`<li><span class="t">${clock(e.t)}</span><span class="r">${S.t0?rel(e.t):''}</span><span>${e.text.replace(/</g,'&lt;')}</span></li>`).join('');
+  ul.innerHTML=S.log.slice().reverse().map(e=>`<li><span class="t">${clock(e.t)}</span><span class="r">${S.t0?rel(e.t):''}</span><span>${esc(e.text)}</span></li>`).join('');
 }
 
 // ---- bindings
@@ -667,6 +687,10 @@ $$('[data-bind]').forEach(i=>{
       const names={vaso:'加上 vasopressin',epiOn:'加上 epinephrine',hypoperf:'心功能不全＋持續低灌流'};
       if(names[k])log((i.checked?'':'取消：')+names[k]);
     }else if(i.dataset.log&&i.value!==''){const [lab,u]=i.dataset.log.split('|');log(`${lab} ${i.value} ${u}`);}
+    // 輸入劑量即視為已開始，避免階梯與下一步停在原地
+    if(k==='ne'&&n(i.value)>0&&!S.done.pressor){S.done.pressor=Date.now();log(itemText.pressor+'（NE）');}
+    if(k==='epi'&&n(i.value)>0&&!S.epiOn){S.epiOn=true;$('#epiOn').checked=true;log('加上 epinephrine');}
+    save();render();
   });
 });
 $$('input[name="abxCat"]').forEach(r=>r.addEventListener('change',()=>{S.abxCat=r.value;save();render();}));
@@ -680,7 +704,12 @@ $$('.check').forEach(b=>b.addEventListener('click',()=>{
   save();render();
 }));
 
-$('#t0now').addEventListener('click',()=>{S.t0=Date.now();save();log('設定 T0');fill();render();renderLog();});
+let t0Arm=0;
+$('#t0now').addEventListener('click',()=>{
+  // 已有 T0 時需再按一次，避免誤觸重設計時
+  if(S.t0&&!t0Arm){t0Arm=setTimeout(()=>{t0Arm=0;render();},3000);render();return;}
+  clearTimeout(t0Arm);t0Arm=0;
+  const re=!!S.t0;S.t0=Date.now();save();log(re?'重設 T0':'設定 T0');fill();render();renderLog();});
 $('#t0input').addEventListener('change',e=>{const t=new Date(e.target.value).getTime();if(isFinite(t)){S.t0=t;save();log('手動設定 T0 為 '+clock(t));render();renderLog();}});
 
 $('#fluidGiven').addEventListener('input',e=>{S.fluidGiven=Math.max(0,n(e.target.value)||0);save();render();});
@@ -706,7 +735,7 @@ function calcInfo(){
   $('#c-note').innerHTML=dr==='vaso'?'Vasopressin 不依體重計算。':(w>0?`以實際體重 <b>${w} kg</b> 計算（依院內規範，肥胖病人可能改用其他體重）。`:'<span style="color:var(--crit)">請先在「病人數值」輸入體重。</span>');
 }
 function calcFromDose(){calcInfo();const r=rate(S.calcDrug,n($('#c-dose').value));$('#c-rate').value=isFinite(r)&&r>0?r.toFixed(1):'';}
-function calcFromRate(){calcInfo();const dr=S.calcDrug,r=n($('#c-rate').value),one=rate(dr,1);$('#c-dose').value=isFinite(r)&&one>0?(r/one).toFixed(dr==='vaso'?3:3):'';}
+function calcFromRate(){calcInfo();const dr=S.calcDrug,r=n($('#c-rate').value),one=rate(dr,1);$('#c-dose').value=isFinite(r)&&one>0?(r/one).toFixed(3):'';}
 $('#c-drug').addEventListener('change',e=>{S.calcDrug=e.target.value;save();fillCalc();});
 ['#c-amt','#c-vol'].forEach((s,i)=>$(s).addEventListener('input',e=>{S.conc[S.calcDrug][i]=n(e.target.value)||0;save();calcFromDose();render();}));
 $('#c-dose').addEventListener('input',calcFromDose);
