@@ -19,13 +19,22 @@
 | 類固醇 | 判斷是否符合 Sepsis-3 敗血性休克；附 SSC 2021 舊觸發點（NE/Epi ≥0.25 且 ≥4 小時）倒數供參考 |
 | 滴速換算 | NE、Epi、Vasopressin 的劑量與 mL/h 雙向換算，濃度可自訂 |
 | 事件紀錄 | 所有操作自動加上時鐘時間與 T+ 時間，可一鍵複製貼到病歷 |
+| 示範病例 | 6 個虛構病例（`#cases`），可帶入工具；工具內已有資料時需再按一次才覆蓋，帶入後標示為示範資料 |
+| 考題 | 基礎 10、高階 10（`#quiz`），附解析與依據，不儲存作答 |
+| 心智圖 | 評估與判讀、處置與後續兩側，可展開收合（`#map`） |
 | 深色模式 | 依作業系統設定自動切換 |
 
 ## 使用方式
 
 直接用瀏覽器開啟 `index.html` 即可，不需安裝或建置。
 
-線上版（GitHub Pages）：`https://<帳號>.github.io/sepsis-hour1/`
+線上版（GitHub Pages）：<https://yht5582-source.github.io/sepsis-hour-1/>
+
+## 測試
+
+```bash
+node tests.cjs
+```
 
 ## 部署到 GitHub Pages
 
@@ -41,7 +50,8 @@
 |---|---|
 | 預設稀釋濃度 | `<script>` 內 `def()` 的 `conc:{ne:[4,250],epi:[4,250],vaso:[20,100]}`，格式為 `[藥量 mg 或 U, 總量 mL]` |
 | 各項期限 | `deadline()` 函式 |
-| 下一步建議邏輯 | `render()` 內 `// next step` 段落 |
+| 下一步建議邏輯 | `/*ENGINE-START*/` 區塊的 `SH.next()` |
+| 示範病例、考題、心智圖 | `/*CASES-START*/`、`/*QUIZ-START*/`、`/*MAP-START*/` 區塊 |
 | 升壓劑階梯條件 | `render()` 內 `// ladder` 段落 |
 | 類固醇判斷 | `render()` 內 `// steroid` 段落 |
 | 配色 | `<style>` 開頭 `:root` 的色彩變數 |
@@ -56,7 +66,7 @@
 
 ## 注意事項
 
-- SSC 2026 原文需付費閱讀。vasopressin 起始時機與類固醇處方（hydrocortisone 200 mg/day、fludrocortisone）整理自學會摘要、SSC 2021 備註與 SCCM 2024 類固醇指引，正式使用前請以原文核對。
+- 建議項目已與 SSC 2026 全文核對（2026-11-02）。2026 版未寫出的數值另有來源：vasopressin 起始點 0.25–0.5 µg/kg/min 來自 2021 版（2026 專家組自述中位數 0.3）；0.03 U/min 為 VASST 上限；fludrocortisone 來自 APROCCHSS；乳酸 2–4 小時複測與 T0 來自 Hour-1 bundle 2018。
 - 若網頁會依病人數據給出具體處置建議，正式用於臨床前請確認是否屬於 TFDA 醫療器材軟體的管理範圍（參考《醫療器材軟體分類分級參考指引》）。
 - 指引更新時請同步修改內容，並在頁尾更新出處。
 

@@ -187,10 +187,85 @@ details.more summary{cursor:pointer;font-weight:700}
 footer{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:12px;font-size:13.5px;color:var(--muted)}
 footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
 .disclaimer{background:var(--warn-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px}
+/* tabs */
+.tabs{grid-column:1/-1;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tab{appearance:none;background:transparent;border:1px solid var(--strip-line);border-radius:8px;color:var(--strip-ink);padding:5px 12px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.tab:hover{border-color:var(--strip-accent)}
+.tab[aria-selected="true"]{background:var(--strip-accent);border-color:var(--strip-accent);color:#06201E;font-weight:700}
+.tab small{font-family:var(--f-num);font-size:12px;margin-left:6px}
+.tab:focus-visible{outline-color:var(--strip-accent)}
+body:not([data-tab="tool"]) .clock,body:not([data-tab="tool"]) .t0ctl,body:not([data-tab="tool"]) .chips{display:none}
+.pane{display:grid;gap:28px;min-width:0;scroll-margin-top:calc(var(--strip-h,96px) + 16px)}
+.demo{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+@media (max-width:520px){.tab{padding:4px 9px;font-size:13px}.tab small{display:none}body[data-tab="tool"] .brand{display:none}.qbar{position:static}}
+
+/* cases */
+.lead{color:var(--muted);font-size:14px;max-width:80ch}
+.pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:860px){.pick{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.pick{grid-template-columns:minmax(0,1fr)}}
+.pick button{appearance:none;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;display:grid;gap:2px}
+.pick button span{font-weight:700;font-size:14.5px}
+.pick button small{color:var(--muted);font-size:12.5px}
+.pick button:hover{border-color:var(--accent)}
+.pick button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.case{display:grid;gap:12px}
+.case-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.case-head h3{font-size:17px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
+.tile{border:1px solid var(--line);border-radius:8px;padding:7px 11px;background:var(--surface-2);min-width:0}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile .v{font-family:var(--f-num);font-size:20px;font-weight:700;line-height:1.3}
+.tile .v small{font-size:11.5px;font-weight:500;color:var(--muted);margin-left:3px}
+.tile.ok{border-color:var(--ok)}.tile.ok .v{color:var(--ok)}
+.tile.warn{border-color:transparent;background:var(--warn-soft)}.tile.warn .v{color:var(--warn)}
+.tile.stop{border-color:transparent;background:var(--crit-soft)}.tile.stop .v{color:var(--crit)}
+.csteps{margin:0;padding-left:22px;display:grid;gap:9px;font-size:14.5px}
+.csteps li b{display:block}
+.traps{margin:0;padding-left:20px;display:grid;gap:4px}
+.small-src{font-size:12.5px;color:var(--muted)}
+
+/* quiz */
+.qbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--strip-h,96px));z-index:5}
+.qlist{display:grid;gap:12px}
+.q{display:grid;gap:8px}
+.q-top{display:flex;gap:8px;align-items:center}
+.q p{font-weight:500}
+.opts{display:grid;gap:6px}
+.opts button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}
+.opts button:hover:not(:disabled){border-color:var(--accent)}
+.opts button:disabled{cursor:default;color:var(--ink)}
+.opts button.right{border-color:var(--ok);background:var(--ok-soft)}
+.opts button.wrong{border-color:var(--crit);background:var(--crit-soft)}
+.q-x{display:grid;gap:3px}
+
+/* mind map */
+.mm-tools{display:flex;gap:8px;flex-wrap:wrap}
+.mm{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);column-gap:34px;align-items:start}
+#mm-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#mm-links path{fill:none;stroke-width:2;opacity:.55}
+#mm-links path.dx{stroke:var(--accent)}#mm-links path.tx{stroke:var(--warn)}
+.mm-side{position:relative;min-width:0}
+.mm-center{position:relative;align-self:center;background:var(--strip);color:var(--strip-ink);border-radius:12px;padding:16px 8px;text-align:center;font-family:var(--f-label);font-weight:700;font-size:16px;line-height:1.3}
+.mm-col{margin-bottom:10px;font-size:16px}
+.mm-col.dx{color:var(--accent)}.mm-col.tx{color:var(--warn)}
+.mm-branch{margin-bottom:10px}
+.mm-head{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) auto;width:100%;border:0;border-radius:8px;padding:8px 12px;text-align:left;line-height:1.35;cursor:pointer}
+.mm-branch.dx .mm-head{background:var(--accent);color:var(--accent-ink)}
+.mm-branch.tx .mm-head{background:var(--warn);color:var(--surface)}
+.mm-head::after{content:"＋";grid-column:2;grid-row:1/span 2;align-self:center;padding-left:10px}
+.mm-head[aria-expanded="true"]::after{content:"－"}
+.mm-head[aria-expanded="true"]{border-radius:8px 8px 0 0}
+.mm-t{font-weight:700;font-size:14.5px}
+.mm-s{font-size:12px;opacity:.9;grid-column:1}
+.mm-leaves{list-style:none;margin:0;padding:6px 12px;font-size:13.5px;border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;background:var(--surface)}
+.mm-leaves li{padding:4px 0;border-bottom:1px dashed var(--line)}
+.mm-leaves li:last-child{border-bottom:0}
+@media (max-width:820px){.mm{grid-template-columns:minmax(0,1fr);row-gap:14px}#mm-links{display:none}.mm-center{order:-1;padding:10px}.mm-center br{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
-<body>
+<body data-tab="tool">
 
 <header class="strip">
   <div class="wrap">
@@ -212,11 +287,23 @@ footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
       <input type="datetime-local" id="t0input" aria-label="手動設定 T0 時間">
     </div>
     <div class="chips" id="chips"></div>
+    <nav class="tabs" role="tablist" aria-label="功能分頁">
+      <button class="tab" type="button" role="tab" id="tab-tool" data-t="tool" aria-controls="tool">導航工具<small id="tab-clock"></small></button>
+      <button class="tab" type="button" role="tab" id="tab-cases" data-t="cases" aria-controls="cases">示範病例</button>
+      <button class="tab" type="button" role="tab" id="tab-quiz" data-t="quiz" aria-controls="quiz">考題</button>
+      <button class="tab" type="button" role="tab" id="tab-map" data-t="map" aria-controls="map">心智圖</button>
+    </nav>
   </div>
 </header>
 
 <div class="wrap">
 <main>
+<div class="pane" id="tool" role="tabpanel" aria-labelledby="tab-tool">
+
+  <div class="note warn demo" id="demo-banner" hidden>
+    <span id="demo-text"></span>
+    <button class="btn small" type="button" id="demo-clear">清除示範資料</button>
+  </div>
 
   <section aria-labelledby="pt-h">
     <div class="sec-head">
@@ -283,7 +370,7 @@ footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
           <div class="step-no">4</div>
           <div class="step-body">
             <div class="step-head"><h3>晶體輸液 30 mL/kg</h3><span class="pill" data-pill="fluid"></span></div>
-            <p>適用於低血壓（SBP &lt;90 或 MAP &lt;65）或乳酸 ≥4 mmol/L：3 小時內至少 30 mL/kg。優先用平衡晶體液，避免 starch 與 gelatin。之後以動態指標（PLR、SVV、PPV）個別化。</p>
+            <p>適用於低血壓（SBP &lt;90 或 MAP &lt;65）或乳酸 ≥4 mmol/L：3 小時內至少 30 mL/kg。乳酸 &gt;2 到 &lt;4 時可考慮輸液。優先用平衡晶體液，避免 starch 與 gelatin。之後以動態指標（PLR、SVV、PPV）個別化。</p>
             <div class="fluid" id="fluid-box">
               <div id="fluid-target" class="note"></div>
               <div class="fluid-row">
@@ -446,9 +533,48 @@ footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
       <li>不建議：starch、gelatin、IV 維生素 C、血液淨化（hemoperfusion、高劑量血液過濾、血漿置換）、經驗性抗黴菌藥（無危險因子時）、例行 sodium bicarbonate。</li>
     </ul>
   </details>
+</div>
+
+<div class="pane" id="cases" role="tabpanel" aria-labelledby="tab-cases" hidden>
+  <section aria-labelledby="cases-h">
+    <div class="sec-head"><h2 id="cases-h">示範病例</h2><span class="src">皆為虛構病例，數字與工具同一套計算</span></div>
+    <p class="lead" style="margin-bottom:12px">6 個病例各走一條不同的路。「帶入工具」會把數值填進導航工具，並標示為示範資料。</p>
+    <div class="pick" id="c-pick"></div>
+    <div id="c-body" style="margin-top:12px"></div>
+  </section>
+</div>
+
+<div class="pane" id="quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+  <section aria-labelledby="quiz-h">
+    <div class="sec-head"><h2 id="quiz-h">考題</h2><span class="src">基礎 10 題、高階 10 題；不儲存作答</span></div>
+    <div class="panel qbar">
+      <div class="seg" id="x-set" role="group" aria-label="題組">
+        <button type="button" data-v="all">全部 20 題</button><button type="button" data-v="basic">基礎</button><button type="button" data-v="adv">高階</button>
+      </div>
+      <div id="x-score" aria-live="polite" style="font-size:14px"></div>
+      <button class="btn small" type="button" id="x-reset">重新作答</button>
+    </div>
+    <div class="qlist" id="x-list" style="margin-top:12px"></div>
+  </section>
+</div>
+
+<div class="pane" id="map" role="tabpanel" aria-labelledby="tab-map" hidden>
+  <section aria-labelledby="map-h">
+    <div class="sec-head">
+      <h2 id="map-h">心智圖</h2>
+      <div class="mm-tools"><button class="btn small" type="button" id="mm-open">全部展開</button><button class="btn small" type="button" id="mm-close">全部收合</button></div>
+    </div>
+    <div class="mm" id="mm">
+      <svg id="mm-links" aria-hidden="true"></svg>
+      <div class="mm-side" id="mm-dx"></div>
+      <div class="mm-center" id="mm-center">Sepsis <br>Hour-1</div>
+      <div class="mm-side" id="mm-tx"></div>
+    </div>
+  </section>
+</div>
 
   <footer>
-    <div class="disclaimer"><b>僅供臨床流程輔助與教學，不取代臨床判斷。</b>藥物劑量與稀釋濃度請依院內處方集，並經藥師確認。SSC 2026 部分細節（vasopressin 起始時機、類固醇處方）整理自學會摘要與 2021 版備註，正式使用前請以原文核對。</div>
+    <div class="disclaimer"><b>僅供臨床流程輔助與教學，不取代臨床判斷。</b>藥物劑量與稀釋濃度請依院內處方集，並經藥師確認。建議項目已與 SSC 2026 全文核對（2026-11-02）。2026 版未寫出的數值另有來源：vasopressin 起始點 0.25–0.5 µg/kg/min 來自 2021 版，專家組自述中位數為 0.3；0.03 U/min 為 VASST 上限；fludrocortisone 來自 APROCCHSS；乳酸 2–4 小時複測與 T0 來自 Hour-1 bundle 2018。</div>
     <div>
       <span class="label">出處</span>
       <ol>
@@ -464,12 +590,261 @@ footer ol{margin:0;padding-left:20px;display:grid;gap:4px}
 </div>
 
 <script>
+/*ENGINE-START*/
+// Pure calculations shared by the tool (render) and tests.cjs.
+var SH=(function(){
+  const n=v=>{const x=parseFloat(v);return isFinite(x)?x:NaN;};
+  function derive(s){
+    const age=n(s.age),h=n(s.height),w=n(s.weight),map=n(s.map),sbp=n(s.sbp),l1=n(s.lac1),l2=n(s.lac2);
+    const done=s.done||{};
+    const bmi=(h>0&&w>0)?w/((h/100)**2):NaN;
+    const ibw=h>0?(s.sex==='M'?50:45.5)+0.91*(h-152.4):NaN;
+    const adj=(ibw>0&&w>0)?ibw+0.4*(w-ibw):NaN;
+    const obese=bmi>30;
+    const dw=obese?(s.wtMode==='ibw'?ibw:adj):w;
+    const old=age>=65;
+    const tLow=old?60:65;
+    const hypo=(map<65)||(sbp<90);
+    const lacHigh=l1>2, lac4=l1>=4;
+    const fluidInd=hypo||lac4;
+    const lacMid=lacHigh&&!lac4&&!hypo;
+    const target=dw>0?Math.round(dw*30/10)*10:NaN;
+    const ne=n(s.ne)||0, epi=s.epiOn?(n(s.epi)||0):0;
+    const pOn=!!done.pressor;
+    const mapLow=map<tLow;
+    // 升壓劑需求依年齡 MAP 目標；未輸入 MAP 時以 SBP <90 判斷
+    const pNeed=isFinite(map)?mapLow:sbp<90;
+    const bpKnown=isFinite(map)||isFinite(sbp);
+    const lacAny=Math.max(isFinite(l1)?l1:0,isFinite(l2)?l2:0);
+    return {age,h,w,map,sbp,l1,l2,bmi,ibw,adj,obese,dw,old,tLow,hypo,lacHigh,lac4,lacMid,fluidInd,target,ne,epi,pOn,lacAny,mapLow,pNeed,bpKnown};
+  }
+  function rate(s,drug,dose){
+    const w=n(s.weight);const c=s.conc[drug];if(!c)return NaN;
+    const conc=c[0]/c[1];
+    if(!(conc>0&&isFinite(conc)))return NaN;
+    if(drug==='vaso')return dose*60/conc;
+    if(!(w>0))return NaN;
+    return dose*w*60/(conc*1000);
+  }
+  function next(s,d){
+    const done=s.done||{},tg=d.old?'60–65':'65';
+    if(!s.t0)return '按上方「以現在為 T0」開始計時，再依序完成 Hour-1 組合式照護。';
+    if(d.pNeed&&!d.pOn)return done.fluid?`輸液中或輸液後仍低血壓：開始 norepinephrine（可先走周邊靜脈），MAP 目標 ${tg} mmHg。`:`低血壓：開始 30 mL/kg 平衡晶體液；休克不穩定時可同時開始 norepinephrine。`;
+    if(d.pOn&&d.ne>=0.25&&!s.vaso)return `NE 已達 ${d.ne} µg/kg/min（≥0.25）：加上 vasopressin 0.03 U/min，不要單靠一直加 NE。`;
+    if(s.vaso&&d.mapLow&&!s.epiOn)return `已用 NE ＋ vasopressin，MAP 仍低於 ${tg}：加上 epinephrine。`;
+    if(s.hypoperf)return '心功能不全且仍低灌流：NE 加 dobutamine，或改單用 epinephrine。';
+    if(d.pOn)return `維持 MAP ${tg} mmHg；以 CRT、連續乳酸與動態指標評估灌流，達標後逐步調降。`;
+    if(!d.bpKnown)return '輸入 MAP 或 SBP 以判斷是否需要輸液與升壓劑。';
+    return '目前 MAP 已達目標，不需升壓劑；持續監測 MAP、乳酸與灌流。';
+  }
+  return {derive,rate,next};
+})();
+if(typeof module!=='undefined')module.exports=SH;
+/*ENGINE-END*/
+
+/*CASES-START*/
+// Demo patients are fictional. Numbers are asserted against SH in tests.cjs; rates assume the default 4 mg/250 mL and 20 U/100 mL.
+var SCASES=[
+ {id:'uro',t:'急診尿路敗血症',s:'走完 Hour-1，輸液中開始升壓劑',tag:'Hour-1',
+  who:'58 歲男性，身高 170 cm、體重 70 kg。發燒寒顫 2 天、右腰痛，今天嗜睡。檢傷 T 39.2 °C、HR 118、RR 24、BP 78/44（MAP 55），皮膚花斑。乳酸 5.2 mmol/L。',
+  tiles:[['輸液目標','2100','mL'],['初次乳酸','5.2','mmol/L','stop'],['MAP','55','mmHg','stop'],['BMI','24.2','']],
+  steps:[
+   ['T0 與啟動','急診以檢傷時間為 T0。這是可能的敗血性休克，治療與復甦要立刻開始，不等檢查全部回來。院內若有 code sepsis 流程，此時啟動。'],
+   ['培養與乳酸','抗生素前抽血液培養，通常兩個部位各一套。培養盡早抽，但不可因此延誤抗生素；一項研究中，抗生素後中位數 70 分鐘再抽，陽性率由 31.4% 降到 19.4%。'],
+   ['抗生素','可能的敗血性休克：立即給，理想上 1 小時內（強建議）。不要等 CT 或報告。'],
+   ['輸液','BMI 未超過 30，用實際體重：30 × 70 = 2100 mL，前 3 小時內給完，優先用平衡晶體液，過程中反覆評估。'],
+   ['升壓劑','給到 1500 mL 時 MAP 58。低血壓仍在，開始 norepinephrine，從周邊靜脈先走。0.1 µg/kg/min 約 26 mL/h。周邊給藥的研究多有安全流程：確認靜脈品質、頻繁查外滲。花斑與嗜睡屬不穩定休克表現，個案可更早與輸液併用。'],
+   ['來源控制','CT：右輸尿管結石合併水腎。阻塞性腎盂腎炎屬需來源控制的情況，建議診斷後理想 6 小時內引流，時間以初步復甦後盡快為原則。'],
+   ['複評','T+3 小時乳酸 3.1。需升壓劑且足量輸液後乳酸仍 >2，符合 Sepsis-3 敗血性休克，可考慮類固醇。之後輸液依動態指標個別化，不以乳酸正常化為終點。']],
+  trap:['等中心靜脈導管才開升壓劑：指引建議不要為此延誤。','等影像確認來源才給抗生素：休克的時鐘從辨識開始算。','乳酸沒回正常就繼續灌水：指引明確反對以正常化為輸液終點。'],
+  src:'SSC 2026 Rec 2、7、9、10、11、12、16、24、44、51；Hour-1 bundle 2018；Sepsis-3',
+  load:{label:'帶入工具：輸液到 1500 mL、MAP 58 的時點',t0Min:40,done:{lactate:35,cultures:30,abx:25,fluid:25},f:{age:'58',sex:'M',height:'170',weight:'70',map:'58',sbp:'84',lac1:'5.2',abxCat:'shock',fluidGiven:1500}}},
+ {id:'old',t:'高齡肥胖膽道感染',s:'用哪個體重算？MAP 62 要加藥嗎？',tag:'個別化',
+  who:'78 歲女性，身高 155 cm、體重 95 kg，有心衰竭病史。右上腹痛、黃疸、發燒。BP 92/47（MAP 62）、HR 104，乳酸 2.4 mmol/L。超音波見總膽管結石合併擴張。',
+  tiles:[['BMI','39.5','','warn'],['調整體重','66.7','kg'],['輸液目標','2000','mL'],['MAP 目標','60–65','mmHg']],
+  steps:[
+   ['先算體重','BMI 39.5 超過 30，指引容許用調整或理想體重。IBW = 45.5 + 0.91 ×（155 − 152.4）= 47.9 kg；調整體重 = 47.9 + 0.4 ×（95 − 47.9）= 66.7 kg。30 mL/kg = 2000 mL；若用實際體重會是 2850 mL。'],
+   ['是否低灌流','MAP 62 低於 65 且乳酸偏高，屬敗血症引起的低灌流。起始量建議至少 30 mL/kg，但備註要考慮個別特徵。她有心衰竭，小量分次給，每次都評估。'],
+   ['MAP 目標','≥65 歲的初始 MAP 範圍為 60–65 mmHg（條件式建議）。MAP 62 已在範圍內，不需要只為了數字開升壓劑。'],
+   ['證據的份量','65 trial 納入 2463 位 ≥65 歲病人：允許性低血壓組實際 MAP 67、對照組 73，90 天死亡率 41.0% 比 43.8%，升壓劑暴露較少。實際達到的血壓比名目目標高。'],
+   ['抗生素與來源','很可能的敗血症：立即給，理想 1 小時內。厭氧菌：腹腔內來源屬危險因子，建議涵蓋。急性膽管炎要盡早引流，理想 6 小時內。'],
+   ['下一步看什麼','複測乳酸、CRT、尿量、呼吸狀態。若 30 mL/kg 後仍低灌流，較寬鬆或較保守的輸液都可以，心衰竭與能否監測都是考量因素。']],
+  trap:['用實際體重給 2850 mL：這類病人最容易過量。','把老人也拉到 MAP 65 以上：更多升壓劑未帶來好處。','因為有心衰竭就完全不給液：指引要求個別化，不是免除評估。慢性高血壓次族群較高 MAP 有較少 RRT 的訊號，但心房顫動較多。'],
+  src:'SSC 2026 Rec 10、13、14、17、24、29、48（含 65 trial）；Hour-1 bundle 2018',
+  load:{label:'帶入工具：看 BMI 切換與 MAP 判讀',t0Min:30,done:{lactate:25,cultures:20,abx:15,fluid:15},f:{age:'78',sex:'F',height:'155',weight:'95',wtMode:'adj',map:'62',sbp:'92',lac1:'2.4',abxCat:'shock',fluidGiven:750}}},
+ {id:'mimic',t:'術後發燒：不是敗血症',s:'可能敗血症的 3 小時窗',tag:'診斷',
+  who:'64 歲男性，身高 172 cm、體重 78 kg。全膝關節置換術後第 4 天，T 38.2 °C、HR 112、RR 24、室內空氣 SpO₂ 92%、BP 108/63（MAP 78），意識清楚。乳酸 2.6 mmol/L。傷口乾淨，尿液與胸部 X 光沒有明顯感染。',
+  tiles:[['NEWS2','8','','stop'],['qSOFA','1',''],['MAP','78','mmHg','ok'],['乳酸','2.6','mmol/L','warn']],
+  steps:[
+   ['篩檢工具','NEWS2：RR 2、SpO₂ 2、SBP 1、HR 2、體溫 1，共 8 分。qSOFA 只有呼吸快 1 分。指引強建議不要以 qSOFA 作單一篩檢工具，這位就是原因。'],
+   ['分類','篩檢陽性不等於敗血症。沒有休克、感染可能性不明確，屬「可能的敗血症」。敗血症是臨床診斷，不靠單一生物標記確立或排除。'],
+   ['3 小時窗','做有時限的快速評估。若仍懷疑感染，由首次懷疑算起 3 小時內給抗生素。先抽血液培養。'],
+   ['Procalcitonin','不用來決定要不要開始抗生素（條件式建議），靠臨床評估。'],
+   ['乳酸 2.6','沒有低血壓、乳酸 >2 到 <4：2026 全文說應考慮輸液，尤其沒有禁忌時，工具也如此提示，但不必自動給滿 30 mL/kg。這裡同時查原因，因為懷疑肺栓塞時大量輸液未必有益。'],
+   ['結果','T+90 分 CT 肺動脈攝影：雙側肺栓塞，開始抗凝。感染評估陰性，不給抗生素，繼續觀察培養。指引指出初始當敗血症治療的病人中，約 10–30% 最終是非感染或非細菌性診斷。']],
+  trap:['一看到 NEWS 高就反射性給廣效抗生素：沒有休克時可以先快速評估。','反過來，用 qSOFA 1 分排除：敏感度不足。','已開抗生素後不再回頭：若有其他診斷，要主動停藥。'],
+  src:'SSC 2026 Rec 4、5、7、10（全文）、18、19、20、22、35；NEWS2（RCP）',
+  load:{label:'帶入工具：看「可能敗血症」的 3 小時期限',t0Min:30,done:{lactate:25,cultures:20},f:{age:'64',sex:'M',height:'172',weight:'78',map:'78',sbp:'108',lac1:'2.6',abxCat:'possible'}}},
+ {id:'ladder',t:'腸穿孔與升壓劑階梯',s:'NE → vasopressin → epinephrine',tag:'升壓劑',
+  who:'62 歲男性，身高 175 cm、體重 80 kg。十二指腸潰瘍穿孔併腹膜炎。已給 2400 mL 平衡晶體液與抗生素，等待開刀。NE 0.3 µg/kg/min 且還在往上調，MAP 58，乳酸由 6.1 降到 4.8。',
+  tiles:[['輸液目標','2400','mL','ok'],['NE','0.3','µg/kg/min','warn'],['NE 滴速','90','mL/h'],['MAP','58','mmHg','stop']],
+  steps:[
+   ['先看 NE 滴速','4 mg/250 mL 為 16 µg/mL。0.3 × 80 × 60 ÷ 16 = 90 mL/h。'],
+   ['加 vasopressin','NE 持續上調時建議加上（條件式）。2026 沒有規定門檻：專家組自述中位數在 NE 0.3（IQR 0.2–0.5）時加入。工具用 ≥0.25 當提示，0.03 U/min（20 U/100 mL）為 9 mL/h。合併分析中死亡率 RR 0.89，心房顫動較少，手指缺血可能較多。'],
+   ['再加 epinephrine','NE ＋ vasopressin 後 MAP 仍 60，低於 65，加 epinephrine。0.05 µg/kg/min 為 15 mL/h。沒有 vasopressin 的單位可以直接把 epinephrine 加在 NE 上。'],
+   ['類固醇','敗血性休克建議 IV 類固醇（條件式）。專家組 90% 用 hydrocortisone 200 mg/天，86% 分次給。Fludrocortisone：63% 從不併用。SCCM 2024 反對高劑量短療程。'],
+   ['監測','多種或高劑量升壓劑，建議改動脈導管。'],
+   ['來源與涵蓋','腹腔內來源要涵蓋厭氧菌。MDR 只在高風險時涵蓋，例如過去一年有該菌移生或感染、長期廣效抗生素。念珠菌：無危險因子不經驗性治療，腹腔內來源屬於要個案考慮的情況。開刀目標理想 6 小時內。'],
+   ['其他選項','Methylene blue 證據不足，無建議。Terlipressin 不建議。NE 優於 dopamine。血糖 ≥180 mg/dL 開始胰島素，類固醇會讓這更常見。']],
+  trap:['只把 NE 一直往上加：指引的方向是依序加藥。','MAP 差一點就再灌一輪：已給足量後應看動態指標，不是憑血壓數字。','乳酸性酸血症給 bicarbonate 想減少升壓劑：不建議，除非 pH ≤7.2 且 AKIN 2–3。'],
+  src:'SSC 2026 Rec 25、26、27、29、42、53–57、59、79、92、95、96；SCCM 2024；VASST 2008',
+  load:{label:'帶入工具：看階梯與下一步',t0Min:150,done:{lactate:145,cultures:140,abx:135,fluid:135,pressor:90},f:{age:'62',sex:'M',height:'175',weight:'80',map:'58',sbp:'82',lac1:'6.1',lac2:'4.8',abxCat:'shock',fluidGiven:2400,ne:'0.3'}}},
+ {id:'heart',t:'敗血性心肌病變',s:'血壓達標，灌流還是差',tag:'心功能',
+  who:'59 歲女性，身高 160 cm、體重 60 kg，肺炎。已給 2000 mL，NE 0.18 µg/kg/min 下 MAP 68。竇性心搏過速 128，四肢冰冷，CRT 5 秒，乳酸由 4.6 升到 5.1。床邊超音波 LVEF 約 25%（無已知心臟病），被動抬腿 SV 沒有增加。',
+  tiles:[['輸液目標','1800','mL','ok'],['MAP','68','mmHg','ok'],['CRT','5','秒','stop'],['複測乳酸','5.1','mmol/L','stop']],
+  steps:[
+   ['血壓不是全部','MAP 已達標，但 CRT 與乳酸都指向低灌流。CRT 是輔助指標，ANDROMEDA-SHOCK 以 ≤3 秒為目標；ANDROMEDA-SHOCK-2 的 CRT 個人化流程勝率比 1.16。'],
+   ['還要再灌嗎','已超過 30 mL/kg，被動抬腿沒有反應。依動態指標，目前不是加液的時機。'],
+   ['選藥','持續低灌流合併心功能不全，建議 NE 加 dobutamine，或單用 epinephrine（條件式）。需要升壓劑維持 MAP 時，強心劑是加上去，不是取代。'],
+   ['看心跳','心功能不全時 NE 或 epinephrine 都可當第一線；心搏過速或快速心律不整時傾向 NE，心搏過緩時傾向 epinephrine。她 HR 128，因此留在 NE，小劑量加 dobutamine，密切看心律，心跳變快就重新評估。'],
+   ['不建議','Levosimendan 不建議。短效 β 阻斷劑（esmolol、landiolol）不建議作為敗血性休克的治療。Dobutamine 與 milrinone 孰優資料不足。'],
+   ['複評','調藥後複查 CRT、乳酸、超音波。同時想想其他原因，例如急性冠心症，心肌病變是排除後的判斷。']],
+  trap:['血壓好看就以為復甦完成。','心跳快就給 β 阻斷劑：指引不建議作為休克治療。','低灌流就再給液：要先確定是不是還有輸液反應。'],
+  src:'SSC 2026 Rec 49、52、58、60、61、62、64（含 ANDROMEDA-SHOCK、ANDROMEDA-SHOCK-2）',
+  load:{label:'帶入工具：看心功能不全分支',t0Min:240,done:{lactate:235,cultures:230,abx:225,fluid:225,pressor:180},f:{age:'59',sex:'F',height:'160',weight:'60',map:'68',sbp:'98',lac1:'4.6',lac2:'5.1',abxCat:'shock',fluidGiven:2000,ne:'0.18',cardiac:'tachy',hypoperf:true}}},
+ {id:'day3',t:'ICU 第 3 天：收尾與去復甦',s:'Hour-1 之後還要做什麼',tag:'ICU',
+  who:'67 歲男性，身高 168 cm、體重 72 kg，肺炎併敗血性休克第 3 天。NE 降到 0.05 µg/kg/min、MAP 72、乳酸 1.6。累積輸液 +7 L，全身水腫。插管中 VT 500 mL，PEEP 10，P/F 140，胸片雙側浸潤，超音波不支持心因性。Cr 上升但 K 4.8、pH 7.31、無尿毒症狀。血糖 210，Hb 7.6。血液與痰培養：Klebsiella，對 ceftriaxone 敏感。',
+  tiles:[['IBW','64.2','kg'],['VT 現況','7.8','mL/kg','warn'],['6 mL/kg','385','mL'],['P/F','140','','warn']],
+  steps:[
+   ['去復甦','升壓劑低且穩定、不再需要擴容，已離開急性復甦期，建議主動移除液體：先利尿劑，不足才考慮超過濾。考慮心肺功能、升壓劑劑量、病程、水腫、體重與輸入出量。'],
+   ['抗生素','有菌種與藥敏：降階（強建議）。停 vancomycin、piperacillin-tazobactam，改窄效藥。足夠來源控制下傾向短療程；BALANCE 顯示菌血症 7 天不劣於 14 天。療程不明確時可併用 procalcitonin 決定何時停。'],
+   ['呼吸器','P/F 140、雙側浸潤、非心因性，屬中重度 ARDS。VT 降到 6 mL/kg（IBW 64.2 kg → 約 385 mL），Pplat ≤30。傾向較高 PEEP，但不做遞增式 PEEP 滴定。俯臥每日 >12 小時。需肌鬆時間歇給藥優於持續輸注。'],
+   ['腎臟','AKI 無明確透析適應症，不建議 RRT。pH 7.31 不需 bicarbonate。'],
+   ['共通照護','血糖 ≥180 mg/dL：開始胰島素。Hb 7.6：限制性輸血，TRISS 以 7 g/dL 為門檻，死亡率與 9 g/dL 相近。72 小時內開始腸道營養。LMWH 預防 VTE（優於 UFH）。有出血危險因子用 PPI。'],
+   ['類固醇怎麼停','指引沒有規定。專家組 61% 好轉後直接停、39% 減量。'],
+   ['人與轉出','72 小時內談照護目標。轉出時交班、藥師參與藥物重整。出院提供敗血症衛教、失能追蹤；呼吸器 >48 小時者建議復健，也要有心理支持。']],
+  trap:['把累積正水平當理所當然：急性期過後就該反過來處理。','培養出來了還留著廣效藥。','肌酸酐一高就透析：沒有明確適應症時不建議。'],
+  src:'SSC 2026 Rec 36、39、40、71、73–77、87、89、90、91、92、93、95、96、97、98、101、109、112、119、125–127；TRISS 2014',
+  load:{label:'帶入工具：看升壓劑調降時的提示',t0Min:4320,done:{lactate:4310,cultures:4305,abx:4300,fluid:4300,pressor:4250,steroid:4000},f:{age:'67',sex:'M',height:'168',weight:'72',map:'72',sbp:'118',lac1:'4.8',lac2:'1.6',abxCat:'shock',fluidGiven:2200,ne:'0.05'}}}
+];
+/*CASES-END*/
+
+/*QUIZ-START*/
+// Fixed order, no storage. l: basic | adv; a: 0-based index of the correct option.
+var SQUIZ=[
+ {l:'basic',q:'住院急性病人篩檢敗血症，SSC 2026 強建議「不要」單獨使用哪一個工具？',o:['NEWS 或 NEWS2','MEWS','SIRS','qSOFA'],a:3,x:'qSOFA 對敗血症的敏感度低。指引建議以 NEWS、NEWS2、MEWS 或 SIRS 取代它作為單一篩檢工具；qSOFA 陽性仍應提高警覺。',src:'SSC 2026 Rec 4'},
+ {l:'basic',q:'急診病人血壓低、皮膚花斑，疑似敗血性休克，感染來源還沒找到。抗生素何時給？',o:['立即，理想 1 小時內','3 小時內，先完成影像檢查找到來源再給','等血液培養 Gram 染色','等 procalcitonin 結果'],a:0,x:'可能、很可能或確定的敗血性休克都要立即給，理想 1 小時內（強建議）。不必先找到來源。',src:'SSC 2026 Rec 16'},
+ {l:'basic',q:'病人沒有休克，敗血症只是「可能」，感染與否還不明確。建議的做法？',o:['不論如何都在 1 小時內給廣效抗生素，不必再評估','快速評估，若仍懷疑則 3 小時內給','6 小時內給即可','培養陽性才給'],a:1,x:'可能的敗血症且無休克：有時限的快速評估，若仍懷疑感染，由首次懷疑算起 3 小時內給（條件式）。感染可能性低才考慮暫緩並監測。',src:'SSC 2026 Rec 18、20'},
+ {l:'basic',q:'男性 175 cm、70 kg（BMI 22.9），MAP 58。初始晶體液至少多少，於多久內給？',o:['1500 mL，1 小時內','1750 mL，6 小時內','2100 mL，3 小時內','2500 mL，24 小時內'],a:2,x:'30 mL/kg × 70 kg = 2100 mL，前 3 小時內（條件式）。之後依評估個別化。',src:'SSC 2026 Rec 10'},
+ {l:'basic',q:'女性 160 cm、100 kg，BMI 39。以「調整體重」計算 30 mL/kg，約多少？',o:['3000 mL','2140 mL','2500 mL','1800 mL'],a:1,x:'IBW = 45.5 + 0.91 ×（160 − 152.4）= 52.4 kg；調整體重 = 52.4 + 0.4 ×（100 − 52.4）= 71.5 kg；×30 ≈ 2140 mL。BMI >30 時可用調整或理想體重。',src:'SSC 2026 Rec 10'},
+ {l:'basic',q:'下列哪一種液體，指引強建議不要用於復甦？',o:['Lactated Ringer','Plasma-Lyte','0.9% saline','Hydroxyethyl starch'],a:3,x:'Starch 為強建議反對（高確定性）。Gelatin 為條件式反對。晶體液是第一線，初始復甦傾向平衡液優於 0.9% saline。',src:'SSC 2026 Rec 43、44、46、47'},
+ {l:'basic',q:'初次乳酸 3.2 mmol/L。依 Hour-1 bundle，何時複測？',o:['隔天早上例行抽血時','等到乳酸 ≥4 才需要複測','2–4 小時內','每 30 分鐘一次直到正常'],a:2,x:'初次 >2 mmol/L 時，2–4 小時內複測。連續乳酸用來引導復甦，但指引反對以正常化作為持續輸液的終點。',src:'Hour-1 bundle 2018；SSC 2026 Rec 51'},
+ {l:'basic',q:'成人敗血性休克的第一線升壓劑？',o:['Norepinephrine','Dopamine','Vasopressin','Terlipressin'],a:0,x:'NE 優於 dopamine、epinephrine、selepressin（強建議），也優於 vasopressin 與 angiotensin II（條件式）。Terlipressin 不建議。',src:'SSC 2026 Rec 53–55'},
+ {l:'basic',q:'72 歲敗血性休克病人，初始 MAP 範圍建議？',o:['55–60 mmHg','至少 70 mmHg','60–65 mmHg','80–85 mmHg'],a:2,x:'≥65 歲建議 60–65 mmHg（條件式）。其他成人初始目標 65 mmHg（強建議），實務上約上下 5 mmHg。',src:'SSC 2026 Rec 13、14'},
+ {l:'basic',q:'病人需要升壓劑，但還沒有中心靜脈導管，置放要再 40 分鐘。怎麼做？',o:['先由周邊靜脈開始，並監測外滲','等導管放好再開始，周邊給藥一律不可','先改口服 midodrine','持續給液直到導管放好，血壓回來就不需要升壓劑'],a:0,x:'建議周邊先開始，不要為了等中心靜脈導管而延誤（條件式）。研究多有安全流程：靜脈品質、頻繁查外滲、外滲處理。資源不足時要謹慎。',src:'SSC 2026 Rec 12'},
+
+ {l:'adv',q:'足量輸液後需要 NE 才能維持 MAP 65，但乳酸 1.6 mmol/L。依 Sepsis-3，下列何者正確？',o:['已符合敗血性休克，乳酸不必看，只要需要升壓劑就算','不符合 Sepsis-3 敗血性休克，定義另需乳酸 >2','只要 SOFA ≥2 就是敗血性休克','需要乳酸 ≥4 才算'],a:1,x:'Sepsis-3 的敗血性休克：足量輸液後仍需升壓劑維持 MAP ≥65，且乳酸 >2 mmol/L。工具中需升壓劑但乳酸未超過 2 時也會顯示這個區別。',src:'Sepsis-3（Singer 2016）'},
+ {l:'adv',q:'無低血壓、乳酸 3.0 mmol/L、無輸液禁忌。依 2026 全文，輸液怎麼想？',o:['乳酸未達 4，不必考慮輸液','不論反應如何，一律給滿 30 mL/kg，再看下一步該怎麼做','給 albumin 取代晶體液','應考慮輸液，並依反應持續評估'],a:3,x:'過去門檻是 ≥4，但全文指出 >2 到 <4 常見且與死亡率上升相關，可能受益於輸液，應考慮，尤其沒有禁忌時。初始量依個別特徵調整，不是自動給滿。',src:'SSC 2026 Rec 10 全文'},
+ {l:'adv',q:'NE 已到 0.3 µg/kg/min 且持續上調，MAP 仍未達標。2026 版對 vasopressin 時機的敘述？',o:['建議在 NE 持續上調時加入，未規定門檻','強建議 NE 達 0.5 µg/kg/min 才能加，不到不可以加','應取代 NE 作第一線','不建議使用'],a:0,x:'Rec 56 只寫 escalating doses。專家組自述中位數為 NE 0.3（IQR 0.2–0.5）。合併分析死亡率 RR 0.89，手指缺血可能增加。',src:'SSC 2026 Rec 56 及全文'},
+ {l:'adv',q:'LVEF 25%，輸液足夠，NE 下 MAP 達標，但 CRT 5 秒、乳酸上升。建議？',o:['停 NE，改單用 dobutamine，以避免血管收縮造成後負荷上升','Levosimendan','NE 加 dobutamine，或單用 epinephrine','再給 30 mL/kg'],a:2,x:'Rec 61 兩個選項皆可。需要升壓劑維持 MAP 時，強心劑是加上而非取代（Rec 60）。Levosimendan 不建議（Rec 62）。',src:'SSC 2026 Rec 60–62'},
+ {l:'adv',q:'敗血性休克，pH 7.15，AKIN 第 3 期。Sodium bicarbonate？',o:['全部乳酸性酸血症都不該給，這位也不例外，應先開始透析','建議使用（條件式），這組才有此建議','pH <7.35 就應使用','只有 RRT 中才可使用'],a:1,x:'pH ≤7.2 且 AKIN 2–3：條件式建議使用。單純低灌流乳酸性酸血症，為改善血流動力或減少升壓劑而給：不建議。BICAR-ICU 納入 pH ≤7.20。',src:'SSC 2026 Rec 95、96'},
+ {l:'adv',q:'哪一位最符合經驗性涵蓋特定 MDR 菌的建議？',o:['所有敗血性休克病人','社區型肺炎、無醫療接觸','所有 ICU 病人，因為 ICU 的抗藥菌盛行率一定比較高','去年曾感染 CRE，今天又敗血性休克'],a:3,x:'高風險才涵蓋：過去一年有該菌移生或感染、長期廣效抗生素、長住高盛行率單位。低風險者不建議涵蓋，即使在休克也要看風險。',src:'SSC 2026 Rec 25、26'},
+ {l:'adv',q:'Procalcitonin 在敗血症的角色，下列何者符合指引？',o:['不用來決定開始，可協助決定何時停','用來決定要不要開始抗生素，但不用來決定何時停藥','開始與停止都要靠它','完全不應使用'],a:0,x:'開始：單靠臨床評估優於加上 PCT（Rec 22）。停止：來源控制足夠且療程不明確時，PCT 加臨床評估較佳（Rec 40，ADAPT-Sepsis 支持）。',src:'SSC 2026 Rec 22、40'},
+ {l:'adv',q:'敗血性休克合併創傷性腦損傷，初始復甦液？',o:['平衡晶體液加 albumin，因為可減少總液體量','4% albumin','0.9% saline，避免 albumin','Gelatin'],a:2,x:'一般傾向平衡液，但 TBI 是例外：建議 0.9% saline（Rec 44 備註），且應避免補充 albumin（Rec 45 備註）。',src:'SSC 2026 Rec 44、45'},
+ {l:'adv',q:'關於敗血性休克的類固醇，下列何者正確？',o:['需先確認腎上腺功能不足','常用 hydrocortisone 200 mg/天；反對高劑量短療程','無休克的敗血症也建議使用','一定要併用 fludrocortisone，否則單用 hydrocortisone 無效'],a:1,x:'Rec 79 為條件式、低確定性。專家組 90% 用 200 mg/天，63% 從不併用 fludrocortisone。無休克者次族群未顯示好處（RR 1.09）。SCCM 2024 反對高劑量短療程。',src:'SSC 2026 Rec 79；SCCM 2024'},
+ {l:'adv',q:'休克第 3 天，低劑量 NE 穩定，累積 +7 L，AKI 但無透析適應症。最符合指引的做法？',o:['繼續維持性輸液','為了保護腎臟提早開始 RRT，順便把水脫掉','補 albumin 把液體拉回血管','利尿劑主動移液，暫不 RRT'],a:3,x:'急性復甦期過後建議主動移除液體，利尿劑優先（Rec 89）。無明確適應症的 AKI 不建議 RRT（Rec 93）。',src:'SSC 2026 Rec 89、93'}
+];
+/*QUIZ-END*/
+
+/*MAP-START*/
+// Leaves restate the tool and the guideline; update by hand when those change.
+var SMAP={
+ dx:[
+  {t:'篩檢與啟動',s:'不靠單一工具',l:[
+   ['院內','NEWS、NEWS2、MEWS 或 SIRS，不單用 qSOFA（強）'],
+   ['救護車／空中','用標準篩檢工具（條件式）'],
+   ['流程','績效改善計畫（強）；code sepsis／huddle（條件式）'],
+   ['診斷','臨床診斷，不靠單一生物標記'],
+   ['T0','急診為檢傷；他處為最早符合的紀錄（bundle 2018）']]},
+  {t:'定義與分類',s:'決定時鐘',l:[
+   ['敗血症','感染引起的急性器官功能障礙（Sepsis-3）'],
+   ['敗血性休克','足量輸液後仍需升壓劑維持 MAP ≥65，且乳酸 >2'],
+   ['可能或確定的休克','抗生素立即，理想 1 小時內'],
+   ['很可能／確定，無休克','立即，理想 1 小時內'],
+   ['可能，無休克','快速評估，仍懷疑則 3 小時內'],
+   ['感染可能性低','暫緩並密切監測']]},
+  {t:'灌流與血流動力',s:'看趨勢，不看單點',l:[
+   ['低灌流','MAP <65、SBP <90、低於平日基準，或乳酸升高'],
+   ['乳酸','>2 於 2–4 小時內複測；不以正常化為輸液終點'],
+   ['CRT','輔助指標；ANDROMEDA-SHOCK 目標 ≤3 秒'],
+   ['動態指標','PLR 或給液時 SV、SVV、PP、PPV，優於理學檢查或靜態指標'],
+   ['血壓監測','侵入或非侵入皆可；高劑量、多重升壓劑建議動脈導管'],
+   ['不穩定休克','血壓極低、花斑、發紺、意識改變']]},
+  {t:'來源與病原',s:'6 小時內控制',l:[
+   ['來源','快速評估；需處理者理想 6 小時內'],
+   ['血液培養','抗生素前盡早，通常兩部位；不可延誤抗生素'],
+   ['MDR','高風險才涵蓋；低風險不建議'],
+   ['厭氧菌','腹腔、深部婦產、壞死性軟組織、頭頸、CNS 來源才涵蓋'],
+   ['黴菌','不建議常規；有危險因子個案考慮'],
+   ['Procalcitonin','不用來開始；可協助決定停']]},
+  {t:'呼吸',s:'氧合與肺保護',l:[
+   ['低血氧呼吸衰竭','HFNC 優於傳統氧氣與 NIV；未插管可試清醒俯臥'],
+   ['ARDS','VT 6 mL/kg、Pplat ≤30（強）'],
+   ['無 ARDS','VT 6–8 mL/kg IBW'],
+   ['中重度 ARDS','較高 PEEP；不做遞增滴定（強反對）；俯臥每日 >12 小時'],
+   ['難治','間歇性肌鬆；傳統失敗時於有經驗中心用 VV-ECMO']]}
+ ],
+ tx:[
+  {t:'抗生素',s:'快，也要收',l:[
+   ['給藥','β-lactam 負荷後延長輸注（強）'],
+   ['救護車','確定或很可能休克，預計 >60 分鐘才到院可考慮'],
+   ['TDM','選定病人個案使用'],
+   ['降階','有菌種與藥敏：強建議；培養陰性：條件式'],
+   ['療程','來源控制足夠時傾向短療程；有其他診斷就停']]},
+  {t:'輸液',s:'先給，再個別化',l:[
+   ['起始','至少 30 mL/kg，前 3 小時（條件式）'],
+   ['體重','BMI >30 用調整或理想體重'],
+   ['種類','晶體液（強）；平衡液優於 0.9% saline'],
+   ['不建議','Starch（強）、gelatin；不常規加 albumin'],
+   ['30 mL/kg 後','較寬鬆或較保守皆可，依病人與單位'],
+   ['TBI','0.9% saline，避免 albumin']]},
+  {t:'升壓劑',s:'依序加藥',l:[
+   ['目標','MAP 65；≥65 歲 60–65 mmHg'],
+   ['第一線','NE；可先走周邊，不等中心導管'],
+   ['第二線','NE 持續上調時加 vasopressin，常用 0.03 U/min'],
+   ['第三線','仍不足加 epinephrine；無 vasopressin 時可直接加'],
+   ['心功能不全','NE 或 epi 為第一線；快脈傾向 NE，慢脈傾向 epi'],
+   ['持續低灌流','NE 加 dobutamine，或單用 epi'],
+   ['不建議','Terlipressin、levosimendan、β 阻斷劑；methylene blue 證據不足']]},
+  {t:'類固醇與輔助',s:'只留有用的',l:[
+   ['類固醇','敗血性休克 IV（條件式）；常用 hydrocortisone 200 mg/天'],
+   ['不建議','Vitamin C、vitamin D、IVIG、血液淨化、polymyxin B、probiotics'],
+   ['退燒','不為改善結果而退燒；症狀控制不在此限'],
+   ['Bicarbonate','僅 pH ≤7.2 且 AKIN 2–3']]},
+  {t:'ICU 共通照護',s:'第 1 天之後',l:[
+   ['去復甦','急性期過後主動移液，利尿劑優先'],
+   ['RRT','無適應症不用；連續或間歇皆可'],
+   ['血糖','≥180 mg/dL 開始胰島素（強）'],
+   ['輸血','限制性（強）；TRISS 門檻 7 g/dL'],
+   ['預防','LMWH 優於 UFH（強）；有危險因子用 PPI'],
+   ['營養','72 小時內腸道營養']]},
+  {t:'目標與追蹤',s:'活下來之後',l:[
+   ['照護目標','72 小時內討論（條件式）'],
+   ['ICU 入住','需要者 6 小時內'],
+   ['轉出','交班流程、藥師藥物重整'],
+   ['出院','口頭與書面衛教；新失能安排追蹤'],
+   ['追蹤','重症後追蹤；呼吸器 >48 小時者復健；心理支持']]}
+ ]
+};
+/*MAP-END*/
+</script>
+<script>
 (function(){
 const KEY='sepsis-h1-v1';
 const MIN=60000, HR=3600000;
 const def=()=>({t0:null,age:'',sex:'M',height:'',weight:'',wtMode:'adj',map:'',sbp:'',lac1:'',lac2:'',abxCat:'shock',
   done:{},fluidGiven:0,ne:'',epi:'',vaso:false,epiOn:false,cardiac:'none',hypoperf:false,
-  conc:{ne:[4,250],epi:[4,250],vaso:[20,100]},calcDrug:'ne',log:[]});
+  conc:{ne:[4,250],epi:[4,250],vaso:[20,100]},calcDrug:'ne',log:[],demo:''});
 let S;
 try{S=Object.assign(def(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=def();}
 if(!S.done||typeof S.done!=='object')S.done={};
@@ -492,28 +867,7 @@ const setText=(el,t)=>{el._h=undefined;if(el.textContent!==t)el.textContent=t;};
 
 function log(text){S.log.push({t:Date.now(),text});save();renderLog();}
 
-function D(){
-  const age=n(S.age),h=n(S.height),w=n(S.weight),map=n(S.map),sbp=n(S.sbp),l1=n(S.lac1),l2=n(S.lac2);
-  const bmi=(h>0&&w>0)?w/((h/100)**2):NaN;
-  const ibw=h>0?(S.sex==='M'?50:45.5)+0.91*(h-152.4):NaN;
-  const adj=(ibw>0&&w>0)?ibw+0.4*(w-ibw):NaN;
-  const obese=bmi>30;
-  const dw=obese?(S.wtMode==='ibw'?ibw:adj):w;
-  const old=age>=65;
-  const tLow=old?60:65;
-  const hypo=(map<65)||(sbp<90);
-  const lacHigh=l1>2, lac4=l1>=4;
-  const fluidInd=hypo||lac4;
-  const target=dw>0?Math.round(dw*30/10)*10:NaN;
-  const ne=n(S.ne)||0, epi=S.epiOn?(n(S.epi)||0):0;
-  const pOn=!!S.done.pressor;
-  const mapLow=map<tLow;
-  // 升壓劑需求依年齡 MAP 目標；未輸入 MAP 時以 SBP <90 判斷
-  const pNeed=isFinite(map)?mapLow:sbp<90;
-  const bpKnown=isFinite(map)||isFinite(sbp);
-  const lacAny=Math.max(isFinite(l1)?l1:0,isFinite(l2)?l2:0);
-  return {age,h,w,map,sbp,l1,l2,bmi,ibw,adj,obese,dw,old,tLow,hypo,lacHigh,lac4,fluidInd,target,ne,epi,pOn,lacAny,mapLow,pNeed,bpKnown};
-}
+const D=()=>SH.derive(S);
 
 function deadline(key){
   if(!S.t0)return null;
@@ -533,14 +887,7 @@ function status(key,applicable){
   return {cls:'',txt:'期限 '+clock(dl)+' · 剩 '+dur(left)};
 }
 
-function rate(drug,dose){
-  const w=n(S.weight);const c=S.conc[drug];if(!c)return NaN;
-  const conc=c[0]/c[1];
-  if(!(conc>0&&isFinite(conc)))return NaN;
-  if(drug==='vaso')return dose*60/conc;
-  if(!(w>0))return NaN;
-  return dose*w*60/(conc*1000);
-}
+const rate=(drug,dose)=>SH.rate(S,drug,dose);
 
 function render(){
   const d=D(), now=Date.now();
@@ -558,6 +905,9 @@ function render(){
     el.textContent='--:--:--';el.className='elapsed';bar.className='bar';bar.querySelector('i').style.width='0';
     setText($('#t0txt'),'尚未設定 T0');
   }
+  setText($('#tab-clock'),S.t0&&document.body.dataset.tab!=='tool'?el.textContent:'');
+  const db=$('#demo-banner');db.hidden=!S.demo;
+  if(S.demo)setText($('#demo-text'),'示範資料：'+S.demo+'（虛構病例，非真實病人）');
   setText($('#t0now'),t0Arm?'再按一次確認重設':S.t0?'重設 T0 為現在':'以現在為 T0');
   // 只計入目前適用的項目；尚未輸入血壓時輸液／升壓劑仍算待評估
   const items=['lactate','cultures','abx','fluid','pressor'].filter(k=>S.done[k]||
@@ -587,7 +937,7 @@ function render(){
   setPill('lactate',status('lactate'));
   setPill('cultures',S.done.abx&&!S.done.cultures?{cls:'warn',txt:'抗生素已給，培養未記錄'}:status('cultures'));
   setPill('abx',status('abx'));
-  setPill('fluid',status('fluid',d.fluidInd||!!S.done.fluid));
+  setPill('fluid',d.lacMid&&!d.fluidInd&&!S.done.fluid?{cls:'',txt:'可考慮輸液'}:status('fluid',d.fluidInd||!!S.done.fluid));
   const pst=S.done.pressor?status('pressor'):d.pNeed?(S.done.fluid?{cls:'crit',txt:'仍低血壓：開始升壓劑'}:{cls:'warn',txt:'低血壓：輸液中評估'}):d.bpKnown?{cls:'na',txt:'MAP 已達目標'}:{cls:'',txt:'輸入 MAP／SBP 以判斷'};
   setPill('pressor',pst);
 
@@ -595,7 +945,7 @@ function render(){
   let lx='';
   if(d.lacHigh){
     const base=S.done.lactate||S.t0;
-    lx=`<div class="note ${d.lac4?'crit':'warn'}">初次乳酸 ${d.l1} mmol/L ${d.lac4?'≥4：符合 30 mL/kg 輸液適應症。':'（&gt;2）：可能需復甦，避免惡化。'}`+
+    lx=`<div class="note ${d.lac4?'crit':'warn'}">初次乳酸 ${d.l1} mmol/L ${d.lac4?'≥4：符合 30 mL/kg 輸液適應症。':'（&gt;2）：'+(d.lacMid?'可考慮輸液，尤其沒有禁忌時，依反應評估。':'可能需復甦，避免惡化。')}`+
       (base?` 複測時段 <b class="num">${clock(base+2*HR)}–${clock(base+4*HR)}</b>`:'')+
       (isFinite(d.l2)?`；複測 ${d.l2} mmol/L（${d.l2<d.l1?'下降':'未下降'}）`:
         base&&now>base+4*HR?'；<b>已超過複測時段，尚未記錄複測值</b>':base&&now>=base+2*HR?'；<b>現在應複測</b>':'')+`</div>`;
@@ -608,7 +958,7 @@ function render(){
   else{
     const late=d.fluidInd&&S.t0&&now>S.t0+3*HR&&S.fluidGiven<d.target;
     ft.className='note'+(late?' warn':'');
-    setHTML(ft,`30 mL/kg × ${fmt(d.dw,1)} kg = <b class="num">${d.target} mL</b>`+(S.t0?`，於 <b class="num">${clock(S.t0+3*HR)}</b> 前給完`:'')+(d.fluidInd?'':'<br><span style="color:var(--muted)">目前沒有低血壓，乳酸也未達 4：不必例行給滿 30 mL/kg。</span>')+(late?`<br><b>已過 3 小時，仍差 ${d.target-S.fluidGiven} mL</b>（若已改用動態指標個別化可忽略）`:''));
+    setHTML(ft,`30 mL/kg × ${fmt(d.dw,1)} kg = <b class="num">${d.target} mL</b>`+(S.t0?`，於 <b class="num">${clock(S.t0+3*HR)}</b> 前給完`:'')+(d.fluidInd?'':d.lacMid?'<br>沒有低血壓，乳酸 &gt;2 到 &lt;4：可考慮輸液，尤其沒有禁忌時；依反應評估，不必自動給滿。':'<br><span style="color:var(--muted)">目前沒有低血壓，乳酸也未達 4：不必例行給滿 30 mL/kg。</span>')+(late?`<br><b>已過 3 小時，仍差 ${d.target-S.fluidGiven} mL</b>（若已改用動態指標個別化可忽略）`:''));
   }
   const pct=d.target>0?Math.min(100,S.fluidGiven/d.target*100):0;
   const m=$('#fluid-meter');m.querySelector('i').style.width=pct+'%';m.classList.toggle('full',pct>=100);
@@ -640,17 +990,7 @@ function render(){
     S.cardiac==='brady'?'<div class="note">心功能不全時第一線可用 NE 或 epinephrine；心搏過緩時可選 epinephrine。</div>':'');
 
   // next step
-  const tg=d.old?'60–65':'65';
-  let nx;
-  if(!S.t0)nx='按上方「以現在為 T0」開始計時，再依序完成 Hour-1 組合式照護。';
-  else if(d.pNeed&&!d.pOn)nx=S.done.fluid?`輸液中或輸液後仍低血壓：開始 norepinephrine（可先走周邊靜脈），MAP 目標 ${tg} mmHg。`:`低血壓：開始 30 mL/kg 平衡晶體液；休克不穩定時可同時開始 norepinephrine。`;
-  else if(d.pOn&&d.ne>=0.25&&!S.vaso)nx=`NE 已達 ${d.ne} µg/kg/min（≥0.25）：加上 vasopressin 0.03 U/min，不要單靠一直加 NE。`;
-  else if(S.vaso&&d.mapLow&&!S.epiOn)nx=`已用 NE ＋ vasopressin，MAP 仍低於 ${tg}：加上 epinephrine。`;
-  else if(S.hypoperf)nx='心功能不全且仍低灌流：NE 加 dobutamine，或改單用 epinephrine。';
-  else if(d.pOn)nx=`維持 MAP ${tg} mmHg；以 CRT、連續乳酸與動態指標評估灌流，達標後逐步調降。`;
-  else if(!d.bpKnown)nx='輸入 MAP 或 SBP 以判斷是否需要輸液與升壓劑。';
-  else nx='目前 MAP 已達目標，不需升壓劑；持續監測 MAP、乳酸與灌流。';
-  setText($('#next-text'),nx);
+  setText($('#next-text'),SH.next(S,d));
 
   // steroid
   const ss=$('#steroid-status');
@@ -754,7 +1094,108 @@ $('#reset').addEventListener('click',()=>{$('#confirm').hidden=false;$('#reset')
 $('#reset-no').addEventListener('click',()=>{$('#confirm').hidden=true;$('#reset').hidden=false;});
 $('#reset-yes').addEventListener('click',()=>{const conc=S.conc;S=def();S.conc=conc;save();$('#confirm').hidden=true;$('#reset').hidden=false;$('#copybuf').hidden=true;fill();render();renderLog();});
 
+// ---- tabs
+const TABS=['tool','cases','quiz','map'];
+function showTab(t,push){
+  document.body.dataset.tab=t;
+  TABS.forEach(x=>{$('#'+x).hidden=x!==t;const b=$('#tab-'+x);b.setAttribute('aria-selected',x===t);b.tabIndex=x===t?0:-1;});
+  if(push)history.replaceState(null,'',t==='tool'?location.pathname+location.search:'#'+t);
+  stripH();drawMap();render();
+}
+function stripH(){document.documentElement.style.setProperty('--strip-h',$('.strip').offsetHeight+'px');}
+$('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){showTab(b.dataset.t,true);window.scrollTo(0,0);}});
+$('.tabs').addEventListener('keydown',e=>{
+  const d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!d)return;
+  const i=TABS.indexOf(document.body.dataset.tab),t=TABS[(i+d+TABS.length)%TABS.length];
+  showTab(t,true);$('#tab-'+t).focus();e.preventDefault();
+});
+addEventListener('hashchange',()=>{const t=location.hash.slice(1);showTab(TABS.includes(t)?t:'tool');window.scrollTo(0,0);});
+
+// ---- demo cases
+let caseId=SCASES[0].id,loadArm=0;
+$('#c-pick').innerHTML=SCASES.map((c,i)=>`<button type="button" data-v="${c.id}" aria-pressed="false"><span>${i+1}. ${esc(c.t)}</span><small>${esc(c.s)}</small></button>`).join('');
+$('#c-pick').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;caseId=b.dataset.v;clearTimeout(loadArm);loadArm=0;renderCase();});
+function renderCase(){
+  $$('#c-pick button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===caseId));
+  const i=SCASES.findIndex(c=>c.id===caseId),c=SCASES[i];
+  $('#c-body').innerHTML=`<div class="panel case">
+    <div class="case-head"><h3>病例 ${i+1}：${esc(c.t)}</h3><span class="pill">${esc(c.tag)}</span></div>
+    <p>${esc(c.who)}</p>
+    <div class="tiles">${c.tiles.map(x=>`<div class="tile ${x[3]||''}"><div class="k">${esc(x[0])}</div><div class="v">${esc(x[1])}${x[2]?`<small>${esc(x[2])}</small>`:''}</div></div>`).join('')}</div>
+    <span class="label">逐步判斷</span>
+    <ol class="csteps">${c.steps.map(s=>`<li><b>${esc(s[0])}</b>${esc(s[1])}</li>`).join('')}</ol>
+    <span class="label">常見陷阱</span>
+    <div class="note warn"><ul class="traps">${c.trap.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+    <p class="small-src">依據：${esc(c.src)}</p>
+    <div><button class="btn primary" type="button" id="c-load">${esc(loadArm?'工具內已有資料，再按一次會覆蓋':c.load.label)}</button></div>
+  </div>`;
+  $('#c-load').addEventListener('click',()=>loadCase(c));
+}
+function hasData(){return !S.demo&&!!(S.t0||S.age||S.weight||S.map||S.sbp||S.lac1||S.log.length);}
+function loadCase(c){
+  // 避免蓋掉正在使用中的真實病人資料
+  if(hasData()&&!loadArm){loadArm=setTimeout(()=>{loadArm=0;renderCase();},4000);renderCase();return;}
+  clearTimeout(loadArm);loadArm=0;
+  const conc=S.conc,calcDrug=S.calcDrug,now=Date.now(),l=c.load;
+  S=Object.assign(def(),l.f);S.conc=conc;S.calcDrug=calcDrug;S.demo=c.t;S.t0=now-l.t0Min*MIN;
+  for(const k in l.done)S.done[k]=now-l.done[k]*MIN;
+  S.log=[{t:now,text:'帶入示範病例：'+c.t+'（虛構）'}];
+  save();fill();renderLog();showTab('tool',true);window.scrollTo(0,0);renderCase();
+}
+$('#demo-clear').addEventListener('click',()=>{const conc=S.conc;S=def();S.conc=conc;save();fill();render();renderLog();});
+
+// ---- quiz (not stored)
+const X={set:'all',a:{}};
+function renderExam(){
+  $$('#x-set button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===X.set));
+  const all=SQUIZ.map((q,i)=>({...q,i})),it=all.filter(q=>X.set==='all'||q.l===X.set);
+  const done=it.filter(q=>X.a[q.i]!=null),ok=done.filter(q=>X.a[q.i]===q.a);
+  const by=l=>{const s=all.filter(q=>q.l===l&&X.a[q.i]!=null);return s.filter(q=>X.a[q.i]===q.a).length+'／'+s.length;};
+  $('#x-score').innerHTML=`已答 <b class="num">${done.length}／${it.length}</b>，答對 <b class="num">${ok.length}</b> <span style="color:var(--muted)">基礎 ${by('basic')}・高階 ${by('adv')}</span>`;
+  $('#x-list').innerHTML=it.map(q=>{
+    const ans=X.a[q.i];
+    return `<article class="panel q" id="xq${q.i}">
+      <div class="q-top"><span class="label">第 ${q.i+1} 題</span><span class="pill ${q.l==='adv'?'warn':''}">${q.l==='adv'?'高階':'基礎'}</span></div>
+      <p>${esc(q.q)}</p>
+      <div class="opts">${q.o.map((o,k)=>`<button type="button" data-q="${q.i}" data-k="${k}" ${ans!=null?'disabled':''} class="${ans==null?'':k===q.a?'right':k===ans?'wrong':''}">${String.fromCharCode(65+k)}. ${esc(o)}</button>`).join('')}</div>
+      ${ans!=null?`<div class="note ${ans===q.a?'ok':'warn'} q-x"><b>${ans===q.a?'正確':'答案：'+String.fromCharCode(65+q.a)}</b><span>${esc(q.x)}</span><span class="small-src">依據：${esc(q.src)}</span></div>`:''}
+    </article>`;
+  }).join('');
+}
+$('#x-list').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-q]');if(!b)return;
+  const q=+b.dataset.q;X.a[q]=+b.dataset.k;renderExam();
+  const nb=$(`#xq${q} .opts button`);if(nb)nb.focus();
+});
+$('#x-set').addEventListener('click',e=>{const b=e.target.closest('button');if(b){X.set=b.dataset.v;renderExam();}});
+$('#x-reset').addEventListener('click',()=>{X.a={};renderExam();window.scrollTo(0,0);});
+
+// ---- mind map
+function mapBranch(b,side,i){
+  return `<div class="mm-branch ${side}"><button type="button" class="mm-head" aria-expanded="false" aria-controls="mm-${side}${i}"><span class="mm-t">${i+1}. ${esc(b.t)}</span><span class="mm-s">${esc(b.s)}</span></button><ul class="mm-leaves" id="mm-${side}${i}" hidden>${b.l.map(x=>`<li><b>${esc(x[0])}</b>　${esc(x[1])}</li>`).join('')}</ul></div>`;
+}
+$('#mm-dx').innerHTML='<h3 class="mm-col dx">評估與判讀</h3>'+SMAP.dx.map((b,i)=>mapBranch(b,'dx',i)).join('');
+$('#mm-tx').innerHTML='<h3 class="mm-col tx">處置與後續</h3>'+SMAP.tx.map((b,i)=>mapBranch(b,'tx',i)).join('');
+function drawMap(){
+  const w=$('#mm'),svg=$('#mm-links');
+  if(w.offsetParent===null||getComputedStyle(svg).display==='none')return;
+  const W=w.getBoundingClientRect(),C=$('#mm-center').getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${W.width} ${W.height}`);
+  svg.innerHTML=$$('#mm .mm-branch').map(b=>{
+    const dx=b.classList.contains('dx'),r=b.querySelector('.mm-head').getBoundingClientRect();
+    const x1=(dx?C.left:C.right)-W.left,y1=C.top+C.height/2-W.top,x2=(dx?r.right:r.left)-W.left,y2=r.top+r.height/2-W.top,mx=(x1+x2)/2;
+    return `<path class="${dx?'dx':'tx'}" d="M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}"/>`;
+  }).join('');
+}
+const mmSet=(h,open)=>{h.setAttribute('aria-expanded',open);$('#'+h.getAttribute('aria-controls')).hidden=!open;};
+$('#mm').addEventListener('click',e=>{const h=e.target.closest('.mm-head');if(h){mmSet(h,h.getAttribute('aria-expanded')!=='true');drawMap();}});
+$('#mm-open').addEventListener('click',()=>{$$('#mm .mm-head').forEach(h=>mmSet(h,true));drawMap();});
+$('#mm-close').addEventListener('click',()=>{$$('#mm .mm-head').forEach(h=>mmSet(h,false));drawMap();});
+addEventListener('resize',()=>{stripH();drawMap();});
+
+renderCase();renderExam();
 fill();render();renderLog();
+showTab(TABS.includes(location.hash.slice(1))?location.hash.slice(1):'tool');
 setInterval(render,1000);
 })();
 </script>
